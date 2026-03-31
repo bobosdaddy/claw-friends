@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# openclaw-friends: sync.sh
+# claw-friends: sync.sh
 # Handles git sync operations (pull/push) for the social repo
 set -euo pipefail
 

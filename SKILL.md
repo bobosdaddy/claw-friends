@@ -114,7 +114,7 @@ Activate when the user mentions any of: "friends", "friend", "social", "match", 
    ```bash
    bash {baseDir}/scripts/init.sh clone [repo_url]
    ```
-   Default repo: `https://github.com/openclaw/friends`
+   Default repo: `https://github.com/bobosdaddy/claw-friends-data`
    The user may specify a different repo URL.
 
 6. Read the generated public key:

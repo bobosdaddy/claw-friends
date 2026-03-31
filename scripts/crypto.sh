@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# openclaw-friends: crypto.sh
+# claw-friends: crypto.sh
 # RSA-2048 + AES-256-CBC hybrid encryption for messages
 #
 # Encrypt: reads plaintext from STDIN, RSA encrypts a random AES key,

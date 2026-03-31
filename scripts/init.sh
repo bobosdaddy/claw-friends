@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# openclaw-friends: init.sh
+# claw-friends: init.sh
 # Handles key generation and repo cloning for /friends init
 set -euo pipefail
 
@@ -116,7 +116,7 @@ clone_repo() {
 }
 
 show_status() {
-    echo "OpenClaw Friends Status"
+    echo "Claw Friends Status"
     echo "───────────────────────"
 
     if [ -f "${OCFR_DIR}/config.yaml" ]; then

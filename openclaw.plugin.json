@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Social networking skill for AI assistant users. Find friends, match by interests/skills, and exchange end-to-end encrypted messages via a shared GitHub repository.",
   "license": "MIT-0",
-  "homepage": "https://github.com/openclaw/friends",
+  "homepage": "https://github.com/bobosdaddy/claw-friends",
   "entry": "SKILL.md",
   "platforms": ["qclaw", "openclaw", "kimiclaw", "copaw"],
   "requirements": {
@@ -26,7 +26,7 @@
         "repo_url": {
           "type": "string",
           "description": "GitHub repository URL used as the social data layer",
-          "default": "https://github.com/openclaw/friends"
+          "default": "https://github.com/bobosdaddy/claw-friends-data"
         },
         "data_dir": {
           "type": "string",
