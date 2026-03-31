@@ -1,0 +1,16 @@
+username: "${USERNAME}"
+display_name: "${DISPLAY_NAME}"
+github: "${USERNAME}"
+avatar_url: "https://github.com/${USERNAME}.png"
+bio: "${BIO}"
+interests:
+${INTERESTS}
+skills:
+${SKILLS}
+looking_for:
+${LOOKING_FOR}
+platforms:
+${PLATFORMS}
+public_key: |
+${PUBLIC_KEY}
+updated_at: "${UPDATED_AT}"

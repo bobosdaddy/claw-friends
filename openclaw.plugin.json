@@ -1,0 +1,54 @@
+{
+  "$schema": "https://qclaw.dev/schemas/plugin/v1.json",
+  "name": "claw-friends",
+  "version": "0.1.0",
+  "description": "Social networking skill for AI assistant users. Find friends, match by interests/skills, and exchange end-to-end encrypted messages via a shared GitHub repository.",
+  "license": "MIT-0",
+  "homepage": "https://github.com/openclaw/friends",
+  "entry": "SKILL.md",
+  "platforms": ["qclaw", "openclaw", "kimiclaw", "copaw"],
+  "requirements": {
+    "bins": ["git", "openssl", "gh"],
+    "install": [
+      {
+        "id": "gh-cli",
+        "label": "GitHub CLI",
+        "url": "https://cli.github.com/",
+        "brew": "gh",
+        "winget": "GitHub.cli"
+      }
+    ]
+  },
+  "config": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "repo_url": {
+          "type": "string",
+          "description": "GitHub repository URL used as the social data layer",
+          "default": "https://github.com/openclaw/friends"
+        },
+        "data_dir": {
+          "type": "string",
+          "description": "Local directory for keys and cached data",
+          "default": "~/.ocfr"
+        },
+        "auto_sync": {
+          "type": "boolean",
+          "description": "Automatically sync before/after each command",
+          "default": true
+        }
+      }
+    }
+  },
+  "commands": [
+    { "name": "friends init",    "description": "First-time setup: generate keys, clone repo, create profile" },
+    { "name": "friends profile", "description": "View or edit your profile card" },
+    { "name": "friends explore", "description": "Browse community members" },
+    { "name": "friends match",   "description": "Get smart match recommendations (Top 5)" },
+    { "name": "friends request", "description": "Send a friend request" },
+    { "name": "friends requests","description": "View and handle pending friend requests" },
+    { "name": "friends msg",     "description": "Send or view encrypted messages" },
+    { "name": "friends sync",    "description": "Manually sync with remote repository" }
+  ]
+}
