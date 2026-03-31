@@ -65,7 +65,7 @@ do_push() {
     branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo "main")
 
     # Stage only known data directories (avoid accidental secret leakage)
-    git add profiles/ matches/ messages/ negotiations/ .gitignore 2>/dev/null || true
+    git add profiles/ matches/ messages/ negotiations/ connects/ .gitignore 2>/dev/null || true
 
     # Check if there are changes to commit
     if git diff --cached --quiet; then
