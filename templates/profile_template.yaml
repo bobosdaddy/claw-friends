@@ -14,3 +14,17 @@ ${PLATFORMS}
 public_key: |
 ${PUBLIC_KEY}
 updated_at: "${UPDATED_AT}"
+
+# Auto-negotiation fields (added in v0.2)
+ideal_type:
+  preferred_interests:
+  ${PREFERRED_INTERESTS}
+  preferred_skills:
+  ${PREFERRED_SKILLS}
+  personality_traits:
+  ${PERSONALITY_TRAITS}
+  deal_breakers:
+  ${DEAL_BREAKERS}
+  description: "${IDEAL_DESCRIPTION}"
+agreement_accepted: ${AGREEMENT_ACCEPTED}
+agreement_accepted_at: "${AGREEMENT_ACCEPTED_AT}"

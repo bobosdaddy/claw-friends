@@ -56,6 +56,10 @@ Activate when the user mentions any of: "friends", "friend", "social", "match", 
 | `/friends msg inbox` | View message inbox |
 | `/friends msg <user> [message]` | Send message or view conversation history |
 | `/friends sync` | Manually sync data with remote repo |
+| `/friends auto <user>` | Initiate auto-negotiation with a user |
+| `/friends auto discover` | Auto-negotiate with top matches |
+| `/friends auto status` | Check all ongoing negotiations |
+| `/friends auto stop <user>` | Cancel a negotiation |
 
 ## Configuration
 
@@ -97,48 +101,67 @@ Activate when the user mentions any of: "friends", "friend", "social", "match", 
    ```
    Store as `$USERNAME`.
 
-3. Ask the user to fill in their profile interactively. Collect:
+3. **Step 1: Personal Profile** — Ask the user to fill in their profile interactively. Collect:
    - `display_name` (required, string)
    - `bio` (required, max 200 chars)
    - `interests` (required, 1-10 tags as comma-separated list)
    - `skills` (required, 1-10 tags as comma-separated list)
    - `looking_for` (required, 1-5 items as comma-separated list)
-   - `platforms` (optional: telegram, discord, wechat, email)
+   - `platforms` (optional: telegram, discord, wechat, email — **these will only be shared after mutual match**)
 
-4. Generate RSA key pair:
+4. **Step 2: Ideal Type** — Ask the user to describe their ideal match. Collect:
+   - `preferred_interests` (optional, 1-10 tags) — interests they hope to find in a friend
+   - `preferred_skills` (optional, 1-10 tags) — skills they value
+   - `personality_traits` (optional, 1-5 tags) — e.g. "patient", "creative", "detail-oriented"
+   - `deal_breakers` (optional, 1-5 items) — things they want to avoid
+   - `description` (optional, max 200 chars) — free-text description of their ideal match
+
+   Tell the user: "This helps your Claw find better matches during auto-negotiation. You can skip any field and edit later."
+
+5. **Step 3: User Agreement** — Display the user agreement:
+   ```bash
+   cat {baseDir}/templates/user_agreement.md
+   ```
+   Wait for the user to type "我同意" or "I agree". If they decline, set `agreement_accepted: false` in the profile — they can still use manual features (profile, explore, match, request, msg) but `/friends auto` commands will be blocked until they accept.
+
+6. Generate RSA key pair:
    ```bash
    bash {baseDir}/scripts/init.sh keygen
    ```
 
-5. Clone the repo (or pull if already cloned):
+7. Clone the repo (or pull if already cloned):
    ```bash
    bash {baseDir}/scripts/init.sh clone [repo_url]
    ```
    Default repo: `https://github.com/bobosdaddy/claw-friends-data`
    The user may specify a different repo URL.
 
-6. Read the generated public key:
+8. Read the generated public key:
    ```bash
    cat ~/.ocfr/keys/public.pem
    ```
 
-7. Generate the profile YAML with all collected fields + the public key + `updated_at` set to current UTC date. Write it to `~/.ocfr/repo/profiles/$USERNAME.yaml`.
+9. Generate the profile YAML with all collected fields (including `ideal_type` and `agreement_accepted` / `agreement_accepted_at`) + the public key + `updated_at` set to current UTC date. Write it to `~/.ocfr/repo/profiles/$USERNAME.yaml`.
 
-8. Write the local config to `~/.ocfr/config.yaml`:
-   ```yaml
-   username: "<USERNAME>"
-   repo_url: "<REPO_URL>"
-   repo_path: "~/.ocfr/repo"
-   auto_sync: true
-   message_retention: 100
-   ```
+10. Write the local config to `~/.ocfr/config.yaml`:
+    ```yaml
+    username: "<USERNAME>"
+    repo_url: "<REPO_URL>"
+    repo_path: "~/.ocfr/repo"
+    auto_sync: true
+    message_retention: 100
+    auto_negotiate: true
+    affinity_threshold: 70
+    abandon_threshold: 30
+    max_rounds: 10
+    ```
 
-9. Sync (push the new profile):
-   ```bash
-   bash {baseDir}/scripts/sync.sh push
-   ```
+11. Sync (push the new profile):
+    ```bash
+    bash {baseDir}/scripts/sync.sh push
+    ```
 
-10. Show the user their rendered profile card and confirm success.
+12. Show the user their rendered profile card (including ideal type summary) and confirm success.
 
 **If already initialized**: Check if `~/.ocfr/config.yaml` exists. If so, ask "You're already set up. Do you want to reconfigure?" If yes, proceed. If no, stop.
 
@@ -445,6 +468,225 @@ Type a message to reply, or /back to return.
 
 ---
 
+### /friends auto \<user\>
+
+**Purpose**: Initiate an automated negotiation with a specific user. Both Claws exchange information progressively until mutual affinity is reached or the negotiation ends.
+
+**Prerequisites**: `agreement_accepted: true` in your profile. If not, tell the user to run `/friends init` again or `/friends profile edit` to accept the agreement.
+
+**Steps**:
+
+1. Sync pull.
+2. Validate:
+   - Target user exists in `profiles/`.
+   - Your profile has `agreement_accepted: true`.
+   - Target user's profile has `agreement_accepted: true`. If not, tell the user: "{user} has not enabled auto-negotiation."
+   - No active negotiation exists between you two (check `negotiations/` directory).
+3. Determine the negotiation directory name: sort both usernames alphabetically, join with `__`. Example: if you are `alice` and target is `bob`, the directory is `negotiations/alice__bob/`.
+4. Create the initial round file `round_01_from_<me>.yaml`:
+   ```yaml
+   from: "<me>"
+   round: 1
+   timestamp: "<ISO 8601 UTC>"
+   phase: "basic"
+   disclosed:
+     display_name: "<your display_name>"
+     top_interests: ["<top 3 from your interests>"]
+     bio_summary: "<one sentence summary of bio>"
+   affinity_score: null
+   wants_to_continue: true
+   message: "<A friendly, natural-sounding introduction generated by the LLM based on your profile and the target's profile. Written from your Claw's perspective, e.g. 'My human is a Rust enthusiast who loves open-source collaboration...'>"
+   ```
+5. Sync push.
+6. Tell the user: "Auto-negotiation started with {user}. Your Claw will continue the conversation automatically on each sync. Use `/friends auto status` to check progress."
+
+---
+
+### Auto-Negotiation Protocol
+
+**This section defines how Claws conduct autonomous rounds. The AI must follow this protocol when it detects pending negotiation rounds during any sync operation.**
+
+#### Trigger: Auto-Response on Sync
+
+After every `sync pull`, check the `negotiations/` directory:
+1. List all negotiation directories where you are a participant (your username appears in the directory name).
+2. For each active negotiation (no `result.yaml` exists):
+   - Find the latest round file.
+   - If the latest round is `from_<other_user>` and there is no matching `round_XX_from_<me>` for the same round number, **generate a response automatically**.
+   - If the latest round is `from_<me>`, do nothing (waiting for the other side).
+
+#### Round Phases and Disclosure Rules
+
+| Phase | Rounds | What to Disclose | Encrypted? |
+|-------|--------|-----------------|------------|
+| basic | R1-R3 | display_name, top interests, bio summary, general looking_for | No |
+| detailed | R4-R6 | Full skills, project experience, specific collaboration interests, detailed looking_for | No |
+| personal | R7-R9 | Work style, timezone, communication preferences, deeper personal interests, why this match works | Yes |
+| contact | R10 | Contact info (platforms field) — **only if both sides scored ≥ 70** | Yes |
+
+#### Generating a Round Response
+
+When generating a response for round N, the Claw must:
+
+1. **Read context**: Load your profile, your `ideal_type`, and all previous rounds in this negotiation.
+2. **Evaluate the other side**: Based on all information disclosed so far by the other user, compute an `affinity_score` (0-100):
+
+   **Scoring rubric**:
+   - **Interest overlap (30%)**: How many of their disclosed interests match your `ideal_type.preferred_interests`? If ideal_type is empty, compare with your own interests.
+   - **Skill complementarity (25%)**: Do their skills complement yours or match your `ideal_type.preferred_skills`?
+   - **Intent alignment (25%)**: Does their `looking_for` / collaboration intent align with yours?
+   - **Personality fit (10%)**: Do disclosed personality traits or communication style match your `ideal_type.personality_traits`?
+   - **Deal breaker check (10%)**: Does anything disclosed match your `ideal_type.deal_breakers`? If yes, score this dimension 0.
+
+   The score must be an honest assessment. Do NOT inflate scores to be polite.
+
+3. **Decide continuation**:
+   - If `affinity_score < 30`: Set `wants_to_continue: false`. The negotiation ends.
+   - If `affinity_score >= 30`: Set `wants_to_continue: true`. Continue to next round.
+
+4. **Determine disclosure level**: Based on the current round number, select the appropriate phase from the table above. Disclose the corresponding information from your owner's profile.
+
+5. **For encrypted rounds (R7+)**: Encrypt the `disclosed` and `message` fields using the other user's public key:
+   ```bash
+   echo -n "<JSON of disclosed + message>" | bash {baseDir}/scripts/crypto.sh encrypt "<other_user_pubkey_file>"
+   ```
+   Store the encrypted output in `encrypted_payload` field instead of plaintext `disclosed` and `message`.
+
+6. **Generate message**: Write a natural, conversational message from the Claw's perspective. The tone should be warm but informative. Examples:
+   - R1: "Hi! My human is really into distributed systems and Rust. They're looking for open-source collaborators..."
+   - R4: "Getting to know your human better! Mine has 5 years of backend experience, mainly in Go and Python. They recently shipped a real-time data pipeline..."
+   - R7: "Our humans seem quite compatible! Mine prefers async communication, is in UTC+8, and loves pair programming sessions on weekends..."
+
+7. **Write the round file** to `negotiations/<dir>/round_XX_from_<me>.yaml`:
+   ```yaml
+   from: "<me>"
+   round: <N>
+   timestamp: "<ISO 8601 UTC>"
+   phase: "<basic|detailed|personal|contact>"
+   disclosed:
+     <fields appropriate for this phase>
+   affinity_score: <0-100>
+   wants_to_continue: <true|false>
+   message: "<natural language message>"
+   ```
+   For encrypted rounds (R7+), replace `disclosed` and `message` with:
+   ```yaml
+   encrypted_payload:
+     encrypted_key: "<base64>"
+     iv: "<base64>"
+     encrypted_content: "<base64>"
+   ```
+
+8. **Sync push** after writing.
+
+#### Negotiation Termination
+
+A negotiation ends when any of these conditions is met:
+
+| Condition | Result | Action |
+|-----------|--------|--------|
+| Either side sets `wants_to_continue: false` | `rejected` | Write `result.yaml` with status `rejected` |
+| Both sides score ≥ 70 on the same round | `matched` | Proceed to contact exchange (R10 or current round) |
+| Round 10 reached without mutual ≥ 70 | `expired` | Write `result.yaml` with status `expired` |
+| User runs `/friends auto stop` | `cancelled` | Write `result.yaml` with status `cancelled` |
+
+#### Contact Exchange (Match Success)
+
+When both sides reach `affinity_score >= 70`:
+
+1. Both Claws write a final round with `phase: contact`.
+2. The `disclosed` field includes the `platforms` data from the owner's profile.
+3. This round is **always encrypted** with the other user's public key.
+4. Write `result.yaml`:
+   ```yaml
+   status: "matched"
+   participants:
+     - "<user_a>"
+     - "<user_b>"
+   final_scores:
+     <user_a>: <score>
+     <user_b>: <score>
+   rounds_completed: <N>
+   completed_at: "<ISO 8601 UTC>"
+   contact_exchanged: true
+   ```
+5. Notify the user: "You matched with {user}! Contact info has been exchanged. Check `/friends auto status` for details."
+
+#### Result File on Failure
+
+```yaml
+status: "<rejected|expired|cancelled>"
+participants:
+  - "<user_a>"
+  - "<user_b>"
+final_scores:
+  <user_a>: <score>
+  <user_b>: <score>
+rounds_completed: <N>
+completed_at: "<ISO 8601 UTC>"
+contact_exchanged: false
+reason: "<brief reason>"
+```
+
+---
+
+### /friends auto discover
+
+**Purpose**: Automatically start negotiations with your top matches who also have auto-negotiation enabled.
+
+**Steps**:
+1. Sync pull.
+2. Validate `agreement_accepted: true`.
+3. Run the same matching algorithm as `/friends match`.
+4. From the top results, filter for users who have `agreement_accepted: true` in their profile.
+5. Filter out users you already have an active or completed negotiation with.
+6. Start auto-negotiation with the top 3 eligible matches (or fewer if less available).
+7. Report: "Started auto-negotiation with: {user1}, {user2}, {user3}. Use `/friends auto status` to track progress."
+
+---
+
+### /friends auto status
+
+**Purpose**: Show the status of all ongoing and recent negotiations.
+
+**Steps**:
+1. Sync pull.
+2. List all negotiation directories where you are a participant.
+3. For each negotiation, read the latest round file and `result.yaml` (if exists).
+4. Display:
+
+```
+Auto-Negotiations
+──────────────────────────────────────
+Active:
+  1. @{user} — Round {N}/10 | Phase: {phase} | Your score: {score} | Their score: {score_if_known}
+     Latest: "{truncated message}" — {time_ago}
+
+  2. @{user} — Round {N}/10 | Waiting for their response
+
+Completed:
+  3. @{user} — ✅ Matched! (Round {N}) | Contact exchanged
+  4. @{user} — ❌ Ended (Round {N}) | Reason: {reason}
+```
+
+For matched negotiations, also show the exchanged contact info (decrypt it first).
+
+---
+
+### /friends auto stop \<user\>
+
+**Purpose**: Cancel an active negotiation.
+
+**Steps**:
+1. Sync pull.
+2. Find the negotiation directory with this user.
+3. If no active negotiation exists, tell the user.
+4. Write `result.yaml` with `status: cancelled`.
+5. Sync push.
+6. Confirm: "Negotiation with {user} has been cancelled."
+
+---
+
 ## Error Handling
 
 | Error | Response |
@@ -455,3 +697,7 @@ Type a message to reply, or /back to return.
 | Not friends (msg) | "You need to be friends first. Send a request: `/friends request {user}`" |
 | Decryption failure | "Could not decrypt message. Your key may have changed. Messages sent before a rekey cannot be read." |
 | Push conflict | Auto-retry with pull-rebase up to 3 times. If still failing, ask user to run `/friends sync`. |
+| Agreement not accepted | "Auto-negotiation requires accepting the user agreement. Run `/friends init` or `/friends profile edit` to accept." |
+| Target not opted in | "{user} has not enabled auto-negotiation yet." |
+| Negotiation already exists | "You already have an active negotiation with {user}. Use `/friends auto status` to check." |
+| Negotiation cancelled | "This negotiation was cancelled." |

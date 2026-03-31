@@ -94,7 +94,7 @@ clone_repo() {
 
         # Create directory structure if it doesn't exist
         cd "${REPO_DIR}"
-        mkdir -p profiles matches messages
+        mkdir -p profiles matches messages negotiations
 
         # Install .gitignore to prevent accidental secret commits
         local script_dir
@@ -106,7 +106,7 @@ clone_repo() {
 
         # Only commit if there are new directories to add
         if [ -n "$(git status --porcelain)" ]; then
-            git add profiles/ matches/ messages/ .gitignore 2>/dev/null || true
+            git add profiles/ matches/ messages/ negotiations/ .gitignore 2>/dev/null || true
             git commit -m "chore: initialize directory structure"
             git push origin HEAD 2>/dev/null || true
         fi
