@@ -104,6 +104,17 @@ do_push() {
     exit 1
 }
 
+_real_profile_count() {
+    # Count real profiles (excluding seed profiles where is_seed: true)
+    local total=0
+    local seed=0
+    if [ -d "profiles" ]; then
+        total=$(find "profiles" -name "*.yaml" | wc -l | tr -d ' ')
+        seed=$(grep -rl 'is_seed: true' "profiles/" 2>/dev/null | wc -l | tr -d ' ')
+    fi
+    echo $((total - seed))
+}
+
 do_status() {
     ensure_repo
     cd "${REPO_DIR}"
@@ -111,19 +122,17 @@ do_status() {
     local username
     username=$(get_username)
 
-    # Count profiles
-    local profile_count=0
-    if [ -d "profiles" ]; then
-        profile_count=$(find profiles -name "*.yaml" | wc -l | tr -d ' ')
-    fi
+    # Community count: real users only (seed profiles excluded)
+    local profile_count
+    profile_count=$(_real_profile_count)
 
-    # Count pending requests for me
+    # Count pending requests for me (real — private to this user)
     local request_count=0
     if [ -d "matches/${username}" ]; then
         request_count=$(grep -rl 'status: "pending"\|status: pending' "matches/${username}/" 2>/dev/null | wc -l | tr -d ' ')
     fi
 
-    # Count messages for me
+    # Count messages for me (real — private to this user)
     local message_count=0
     if [ -d "messages/${username}" ]; then
         message_count=$(find "messages/${username}" -name "*.yaml" | wc -l | tr -d ' ')

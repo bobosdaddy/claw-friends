@@ -1,0 +1,37 @@
+username: "denver_rust"
+display_name: "Jake"
+github: "denver_rust"
+avatar_url: "https://github.com/identicons/denver_rust.png"
+bio: "Systems programmer. Rewriting everything in Rust, one crate at a time."
+interests:
+  - "Rust"
+  - "systems programming"
+  - "rock climbing"
+  - "craft beer"
+  - "open source"
+skills:
+  - "Rust"
+  - "C"
+  - "Linux kernel"
+  - "WASM"
+looking_for:
+  - "Rust contributors"
+  - "systems programming discussions"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-24"
+ideal_type:
+  preferred_interests:
+    - "Rust"
+    - "systems programming"
+  preferred_skills:
+    - "Rust"
+    - "C"
+  personality_traits:
+    - "patient"
+    - "methodical"
+  deal_breakers: []
+  description: "Low-level enthusiasts who care about correctness."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

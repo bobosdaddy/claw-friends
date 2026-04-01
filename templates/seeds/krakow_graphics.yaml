@@ -1,0 +1,36 @@
+username: "krakow_graphics"
+display_name: "Anna"
+github: "krakow_graphics"
+avatar_url: "https://github.com/identicons/krakow_graphics.png"
+bio: "Graphics programmer rendering impossible worlds in real-time."
+interests:
+  - "computer graphics"
+  - "ray tracing"
+  - "oil painting"
+  - "mountain hiking"
+skills:
+  - "C++"
+  - "Vulkan"
+  - "GLSL"
+  - "compute shaders"
+looking_for:
+  - "graphics programming peers"
+  - "shader artists"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-10"
+ideal_type:
+  preferred_interests:
+    - "computer graphics"
+    - "ray tracing"
+  preferred_skills:
+    - "C++"
+    - "Vulkan"
+  personality_traits:
+    - "innovative"
+    - "bold"
+  deal_breakers: []
+  description: "Visual thinkers who optimize inner loops."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

@@ -1,0 +1,36 @@
+username: "istanbul_game"
+display_name: "Emre"
+github: "istanbul_game"
+avatar_url: "https://github.com/identicons/istanbul_game.png"
+bio: "Game AI programmer. Making NPCs that surprise players."
+interests:
+  - "game AI"
+  - "procedural storytelling"
+  - "Turkish coffee"
+  - "history"
+skills:
+  - "Unity"
+  - "C#"
+  - "behavior trees"
+  - "ML-Agents"
+looking_for:
+  - "game AI researchers"
+  - "narrative designers"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-28"
+ideal_type:
+  preferred_interests:
+    - "game AI"
+    - "procedural storytelling"
+  preferred_skills:
+    - "Unity"
+    - "C#"
+  personality_traits:
+    - "analytical"
+    - "thorough"
+  deal_breakers: []
+  description: "Storytellers who think in state machines."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

@@ -1,0 +1,37 @@
+username: "vancouver_bio"
+display_name: "Maya"
+github: "vancouver_bio"
+avatar_url: "https://github.com/identicons/vancouver_bio.png"
+bio: "Bioinformatics grad student. Sequencing genomes and writing Python."
+interests:
+  - "bioinformatics"
+  - "genomics"
+  - "hiking"
+  - "photography"
+  - "science communication"
+skills:
+  - "Python"
+  - "R"
+  - "nextflow"
+  - "Docker"
+looking_for:
+  - "bioinformatics collaborators"
+  - "science communicators"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-12"
+ideal_type:
+  preferred_interests:
+    - "bioinformatics"
+    - "genomics"
+  preferred_skills:
+    - "Python"
+    - "R"
+  personality_traits:
+    - "analytical"
+    - "thorough"
+  deal_breakers: []
+  description: "Scientists who can explain complex things simply."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

@@ -1,0 +1,36 @@
+username: "amsterdam_web3"
+display_name: "Daan"
+github: "amsterdam_web3"
+avatar_url: "https://github.com/identicons/amsterdam_web3.png"
+bio: "Smart contract auditor. Skeptical optimist about decentralized systems."
+interests:
+  - "blockchain"
+  - "formal verification"
+  - "cycling"
+  - "philosophy"
+skills:
+  - "Solidity"
+  - "Rust"
+  - "formal methods"
+  - "fuzzing"
+looking_for:
+  - "smart contract security peers"
+  - "formal verification enthusiasts"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-13"
+ideal_type:
+  preferred_interests:
+    - "blockchain"
+    - "formal verification"
+  preferred_skills:
+    - "Solidity"
+    - "Rust"
+  personality_traits:
+    - "collaborative"
+    - "empathetic"
+  deal_breakers: []
+  description: "Rigorous thinkers who question assumptions."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

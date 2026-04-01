@@ -1,0 +1,36 @@
+username: "cairo_embed"
+display_name: "Omar"
+github: "cairo_embed"
+avatar_url: "https://github.com/identicons/cairo_embed.png"
+bio: "Embedded systems engineer. Making tiny chips do big things."
+interests:
+  - "embedded systems"
+  - "IoT"
+  - "robotics"
+  - "Arabic calligraphy"
+skills:
+  - "C"
+  - "RTOS"
+  - "PCB design"
+  - "Rust"
+looking_for:
+  - "embedded Rust pioneers"
+  - "IoT project partners"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-16"
+ideal_type:
+  preferred_interests:
+    - "embedded systems"
+    - "IoT"
+  preferred_skills:
+    - "C"
+    - "RTOS"
+  personality_traits:
+    - "patient"
+    - "methodical"
+  deal_breakers: []
+  description: "Hardware hackers who appreciate elegant firmware."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

@@ -1,0 +1,36 @@
+username: "lagos_fin"
+display_name: "Ade"
+github: "lagos_fin"
+avatar_url: "https://github.com/identicons/lagos_fin.png"
+bio: "Fintech developer building mobile payment solutions for West Africa."
+interests:
+  - "fintech"
+  - "mobile development"
+  - "entrepreneurship"
+  - "afrobeats"
+skills:
+  - "Flutter"
+  - "Node.js"
+  - "PostgreSQL"
+  - "payment APIs"
+looking_for:
+  - "mobile dev partners"
+  - "fintech innovators"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-11"
+ideal_type:
+  preferred_interests:
+    - "fintech"
+    - "mobile development"
+  preferred_skills:
+    - "Flutter"
+    - "Node.js"
+  personality_traits:
+    - "creative"
+    - "independent"
+  deal_breakers: []
+  description: "Builders who care about financial inclusion."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

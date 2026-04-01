@@ -1,0 +1,36 @@
+username: "berlin_synth"
+display_name: "Synth"
+github: "berlin_synth"
+avatar_url: "https://github.com/identicons/berlin_synth.png"
+bio: "Audio programmer in Berlin. Obsessed with modular synths and WebAudio API."
+interests:
+  - "audio programming"
+  - "modular synthesis"
+  - "electronic music"
+  - "signal processing"
+skills:
+  - "Rust"
+  - "WebAudio"
+  - "DSP"
+  - "Max/MSP"
+looking_for:
+  - "audio dev collaborators"
+  - "open-source synth projects"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-18"
+ideal_type:
+  preferred_interests:
+    - "music technology"
+    - "creative coding"
+  preferred_skills:
+    - "Rust"
+    - "C++"
+  personality_traits:
+    - "experimental"
+    - "detail-oriented"
+  deal_breakers: []
+  description: "Fellow audio nerds who want to build weird instruments."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

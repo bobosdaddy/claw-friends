@@ -1,0 +1,37 @@
+username: "mumbai_cloud"
+display_name: "Priya"
+github: "mumbai_cloud"
+avatar_url: "https://github.com/identicons/mumbai_cloud.png"
+bio: "Cloud architect in Mumbai. Kubernetes evangelist and chaos engineering fan."
+interests:
+  - "cloud native"
+  - "kubernetes"
+  - "chaos engineering"
+  - "DevOps"
+  - "cricket"
+skills:
+  - "Go"
+  - "Terraform"
+  - "Kubernetes"
+  - "AWS"
+looking_for:
+  - "cloud-native contributors"
+  - "SRE knowledge exchange"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-22"
+ideal_type:
+  preferred_interests:
+    - "infrastructure"
+    - "reliability engineering"
+  preferred_skills:
+    - "Go"
+    - "Kubernetes"
+  personality_traits:
+    - "systematic"
+    - "resilient"
+  deal_breakers: []
+  description: "Infra folks who enjoy breaking things to make them stronger."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

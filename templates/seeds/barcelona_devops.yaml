@@ -1,0 +1,37 @@
+username: "barcelona_devops"
+display_name: "Marta"
+github: "barcelona_devops"
+avatar_url: "https://github.com/identicons/barcelona_devops.png"
+bio: "Platform engineer automating everything. GitOps enthusiast."
+interests:
+  - "DevOps"
+  - "platform engineering"
+  - "flamenco"
+  - "cooking"
+  - "open source"
+skills:
+  - "ArgoCD"
+  - "Crossplane"
+  - "Go"
+  - "Pulumi"
+looking_for:
+  - "platform engineering community"
+  - "GitOps practitioners"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-22"
+ideal_type:
+  preferred_interests:
+    - "DevOps"
+    - "platform engineering"
+  preferred_skills:
+    - "ArgoCD"
+    - "Crossplane"
+  personality_traits:
+    - "pragmatic"
+    - "reliable"
+  deal_breakers: []
+  description: "Automation lovers who document their work."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

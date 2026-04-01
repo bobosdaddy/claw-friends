@@ -1,0 +1,37 @@
+username: "seoul_ai"
+display_name: "Jimin"
+github: "seoul_ai"
+avatar_url: "https://github.com/identicons/seoul_ai.png"
+bio: "AI researcher exploring LLM alignment and Korean NLP."
+interests:
+  - "AI safety"
+  - "NLP"
+  - "philosophy"
+  - "K-pop"
+  - "board games"
+skills:
+  - "Python"
+  - "transformers"
+  - "JAX"
+  - "Korean NLP"
+looking_for:
+  - "AI alignment researchers"
+  - "philosophy of mind discussions"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-10"
+ideal_type:
+  preferred_interests:
+    - "AI safety"
+    - "NLP"
+  preferred_skills:
+    - "Python"
+    - "transformers"
+  personality_traits:
+    - "curious"
+    - "open-minded"
+  deal_breakers: []
+  description: "People thinking deeply about where AI is heading."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

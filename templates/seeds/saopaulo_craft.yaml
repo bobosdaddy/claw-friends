@@ -1,0 +1,37 @@
+username: "saopaulo_craft"
+display_name: "Luca"
+github: "saopaulo_craft"
+avatar_url: "https://github.com/identicons/saopaulo_craft.png"
+bio: "Full-stack craftsman from São Paulo. Rails by day, Elixir by night."
+interests:
+  - "web development"
+  - "functional programming"
+  - "coffee"
+  - "skateboarding"
+  - "open source"
+skills:
+  - "Ruby on Rails"
+  - "Elixir"
+  - "PostgreSQL"
+  - "LiveView"
+looking_for:
+  - "Elixir study group"
+  - "open-source maintainers"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-17"
+ideal_type:
+  preferred_interests:
+    - "functional programming"
+    - "web performance"
+  preferred_skills:
+    - "Elixir"
+    - "distributed systems"
+  personality_traits:
+    - "pragmatic"
+    - "collaborative"
+  deal_breakers: []
+  description: "Developers who appreciate clean code and good coffee."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

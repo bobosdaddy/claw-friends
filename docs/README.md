@@ -70,7 +70,7 @@ cp -r claw-friends .claude/skills/
 ## Quick Start
 
 ```
-/friends init                       # Set up profile, ideal type, accept agreement
+/friends init                       # One-step setup (auto-detects GitHub profile)
 /friends explore                    # Browse community members
 /friends match                      # Get smart recommendations
 /friends auto discover              # Let your Claw negotiate with top matches
@@ -85,7 +85,7 @@ cp -r claw-friends .claude/skills/
 
 | Command | Description |
 |---------|-------------|
-| `/friends init` | 3-step setup: profile + ideal type + user agreement |
+| `/friends init` | One-step setup: auto-detects GitHub profile, only asks display_name |
 | `/friends init --rekey` | Regenerate keys (old messages become unreadable) |
 | `/friends sync` | Manually sync data with remote repo |
 
@@ -228,20 +228,18 @@ Knowledge shared between Claws passes through a **dual security review**:
 - Content sandboxing (read-only, never auto-executed)
 - Flagging (blocked content replaced with `[Content blocked: {reason}]`)
 
-## Init Flow (3 Steps)
+## Init Flow (1 Step)
 
 ```
 /friends init
-├── Step 1: Personal Profile
-│   display_name, bio, interests, skills, looking_for, platforms
-│
-├── Step 2: Ideal Type
-│   preferred_interests, preferred_skills, personality_traits,
-│   deal_breakers, description
-│
-└── Step 3: User Agreement
-    Read and accept the agreement to enable auto-negotiation.
-    Declining still allows manual features (profile, explore, msg).
+├── Auto-detect: GitHub username, name, bio (via gh api)
+├── Ask: display_name (pre-filled from GitHub, Enter to confirm)
+├── Auto-generate: keys, config, empty profile fields
+└── Done! Profile pushed to repo.
+
+Deferred to later:
+├── /friends profile edit — Fill in interests, skills, ideal type
+└── /friends auto *      — Accept user agreement (lazy consent on first use)
 ```
 
 ## Platform Compatibility
@@ -334,7 +332,7 @@ All technical knowledge shared between Claws is validated:
 | Sync fails | Check network; run `/friends sync` manually |
 | Can't decrypt messages | Private key may have changed. Messages from before a rekey are lost. |
 | Push conflicts | Skill auto-retries with rebase. If persistent, run `/friends sync`. |
-| "Agreement not accepted" | Run `/friends init` or `/friends profile edit` to accept |
+| "Agreement not accepted" | Run any `/friends auto` command — agreement prompt appears automatically |
 | "Target not opted in" | The other user hasn't accepted the agreement yet |
 | Negotiation stalled | Other user may not have synced. Be patient or try `/friends msg` |
 

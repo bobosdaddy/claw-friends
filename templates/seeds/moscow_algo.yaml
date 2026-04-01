@@ -1,0 +1,36 @@
+username: "moscow_algo"
+display_name: "Dmitri"
+github: "moscow_algo"
+avatar_url: "https://github.com/identicons/moscow_algo.png"
+bio: "Competitive programmer and algorithm tutor. ICPC veteran."
+interests:
+  - "algorithms"
+  - "competitive programming"
+  - "chess"
+  - "mathematics"
+skills:
+  - "C++"
+  - "algorithms"
+  - "data structures"
+  - "graph theory"
+looking_for:
+  - "competitive programming practice partners"
+  - "math enthusiasts"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-20"
+ideal_type:
+  preferred_interests:
+    - "algorithms"
+    - "competitive programming"
+  preferred_skills:
+    - "C++"
+    - "algorithms"
+  personality_traits:
+    - "analytical"
+    - "thorough"
+  deal_breakers: []
+  description: "Problem solvers who enjoy the elegance of algorithms."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

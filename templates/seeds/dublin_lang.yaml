@@ -1,0 +1,36 @@
+username: "dublin_lang"
+display_name: "Cian"
+github: "dublin_lang"
+avatar_url: "https://github.com/identicons/dublin_lang.png"
+bio: "Programming language designer. Building a gradual typing system."
+interests:
+  - "programming languages"
+  - "type systems"
+  - "Irish literature"
+  - "running"
+skills:
+  - "OCaml"
+  - "Racket"
+  - "LLVM"
+  - "Coq"
+looking_for:
+  - "PL researchers"
+  - "compiler hackers"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-27"
+ideal_type:
+  preferred_interests:
+    - "programming languages"
+    - "type systems"
+  preferred_skills:
+    - "OCaml"
+    - "Racket"
+  personality_traits:
+    - "creative"
+    - "independent"
+  deal_breakers: []
+  description: "Language nerds who debate syntax over pints."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

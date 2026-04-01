@@ -1,0 +1,36 @@
+username: "portland_oss"
+display_name: "River"
+github: "portland_oss"
+avatar_url: "https://github.com/identicons/portland_oss.png"
+bio: "Open-source maintainer and community builder. They/them."
+interests:
+  - "open source"
+  - "community building"
+  - "coffee roasting"
+  - "woodworking"
+skills:
+  - "TypeScript"
+  - "GitHub Actions"
+  - "documentation"
+  - "mentoring"
+looking_for:
+  - "open-source contributors"
+  - "community organizers"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-30"
+ideal_type:
+  preferred_interests:
+    - "open source"
+    - "community building"
+  preferred_skills:
+    - "TypeScript"
+    - "GitHub Actions"
+  personality_traits:
+    - "pragmatic"
+    - "reliable"
+  deal_breakers: []
+  description: "Kind humans who write good docs and review PRs thoughtfully."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

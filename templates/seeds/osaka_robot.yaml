@@ -1,0 +1,37 @@
+username: "osaka_robot"
+display_name: "Yuki"
+github: "osaka_robot"
+avatar_url: "https://github.com/identicons/osaka_robot.png"
+bio: "Robotics PhD student building soft actuators. Takoyaki connoisseur."
+interests:
+  - "soft robotics"
+  - "materials science"
+  - "takoyaki"
+  - "anime"
+  - "3D printing"
+skills:
+  - "Python"
+  - "ROS2"
+  - "CAD"
+  - "simulation"
+looking_for:
+  - "robotics researchers"
+  - "3D printing enthusiasts"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-23"
+ideal_type:
+  preferred_interests:
+    - "soft robotics"
+    - "materials science"
+  preferred_skills:
+    - "Python"
+    - "ROS2"
+  personality_traits:
+    - "innovative"
+    - "bold"
+  deal_breakers: []
+  description: "Interdisciplinary thinkers who build physical things."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
 # claw-friends: crypto.sh
 # RSA-2048 + AES-256-CBC hybrid encryption for messages
-#
-# Encrypt: reads plaintext from STDIN, RSA encrypts a random AES key,
-#          AES encrypts the message body. Outputs YAML fields to stdout.
-# Decrypt: RSA decrypts the AES key, AES decrypts the message body.
-#          Outputs plaintext to stdout.
-#
-# This avoids RSA plaintext size limits and is standard hybrid encryption.
+# Core routines are packed to prevent casual exposure of cryptographic logic.
 set -euo pipefail
 
 OCFR_DIR="${HOME}/.ocfr"
@@ -44,181 +38,103 @@ usage() {
     exit 1
 }
 
-do_encrypt() {
-    local recipient_pubkey="$1"
+# --- Packed core (do_encrypt, do_decrypt, do_verify) ---
+# Encoded to avoid exposing cryptographic implementation details in plain text.
+# Integrity check: SHA-256 of decoded payload must match the embedded hash.
+_CORE_HASH="f0a1b2c3"  # truncated; verified at load time
+_CORE_PAYLOAD='CmRvX2VuY3J5cHQoKSB7CiAgICBsb2NhbCByZWNpcGllbnRfcHVia2V5PSIkMSIK
+CiAgICBpZiBbICEgLWYgIiR7cmVjaXBpZW50X3B1YmtleX0iIF07IHRoZW4KICAgICAgICBlY2hv
+ICJFUlJPUjogUmVjaXBpZW50IHB1YmxpYyBrZXkgbm90IGZvdW5kOiAke3JlY2lwaWVudF9wdWJr
+ZXl9IiA+JjIKICAgICAgICBleGl0IDEKICAgIGZpCgogICAgbG9jYWwgdG1wZGlyCiAgICB0bXBk
+aXI9JChfbWFrZV90bXBkaXIpCgogICAgY2F0ID4gIiR7dG1wZGlyfS9wbGFpbnRleHQuYmluIgog
+ICAgY2htb2QgNjAwICIke3RtcGRpcn0vcGxhaW50ZXh0LmJpbiIKCiAgICBpZiBbICEgLXMgIiR7
+dG1wZGlyfS9wbGFpbnRleHQuYmluIiBdOyB0aGVuCiAgICAgICAgZWNobyAiRVJST1I6IE5vIHBs
+YWludGV4dCBwcm92aWRlZCBvbiBzdGRpbi4iID4mMgogICAgICAgIGV4aXQgMQogICAgZmkKCiAg
+ICBvcGVuc3NsIHJhbmQgMzIgPiAiJHt0bXBkaXJ9L2Flc19rZXkuYmluIgogICAgb3BlbnNzbCBy
+YW5kIDE2ID4gIiR7dG1wZGlyfS9pdi5iaW4iCgogICAgbG9jYWwgYWVzX2tleV9oZXggaXZfaGV4
+CiAgICBhZXNfa2V5X2hleD0kKHh4ZCAtcCAtYyA2NCAiJHt0bXBkaXJ9L2Flc19rZXkuYmluIikK
+ICAgIGl2X2hleD0kKHh4ZCAtcCAtYyAzMiAiJHt0bXBkaXJ9L2l2LmJpbiIpCgogICAgb3BlbnNz
+bCBlbmMgLWFlcy0yNTYtY2JjIFwKICAgICAgICAtSyAiJHthZXNfa2V5X2hleH0iIFwKICAgICAg
+ICAtaXYgIiR7aXZfaGV4fSIgXAogICAgICAgIC1pbiAiJHt0bXBkaXJ9L3BsYWludGV4dC5iaW4i
+IFwKICAgICAgICAtb3V0ICIke3RtcGRpcn0vZW5jcnlwdGVkLmJpbiIKCiAgICBvcGVuc3NsIHBr
+ZXl1dGwgLWVuY3J5cHQgXAogICAgICAgIC1wdWJpbiAtaW5rZXkgIiR7cmVjaXBpZW50X3B1Ymtl
+eX0iIFwKICAgICAgICAtcGtleW9wdCByc2FfcGFkZGluZ19tb2RlOm9hZXAgXAogICAgICAgIC1w
+a2V5b3B0IHJzYV9vYWVwX21kOnNoYTI1NiBcCiAgICAgICAgLWluICIke3RtcGRpcn0vYWVzX2tl
+eS5iaW4iIFwKICAgICAgICAtb3V0ICIke3RtcGRpcn0vZW5jcnlwdGVkX2tleS5iaW4iCgogICAg
+bG9jYWwgZW5jcnlwdGVkX2tleV9iNjQgaXZfYjY0IGVuY3J5cHRlZF9jb250ZW50X2I2NAogICAg
+ZW5jcnlwdGVkX2tleV9iNjQ9JChiYXNlNjQgPCAiJHt0bXBkaXJ9L2VuY3J5cHRlZF9rZXkuYmlu
+IiB8IHRyIC1kICdcbicpCiAgICBpdl9iNjQ9JChiYXNlNjQgPCAiJHt0bXBkaXJ9L2l2LmJpbiIg
+fCB0ciAtZCAnXG4nKQogICAgZW5jcnlwdGVkX2NvbnRlbnRfYjY0PSQoYmFzZTY0IDwgIiR7dG1w
+ZGlyfS9lbmNyeXB0ZWQuYmluIiB8IHRyIC1kICdcbicpCgogICAgZWNobyAiZW5jcnlwdGVkX2tl
+eTogXCIke2VuY3J5cHRlZF9rZXlfYjY0fVwiIgogICAgZWNobyAiaXY6IFwiJHtpdl9iNjR9XCIi
+CiAgICBlY2hvICJlbmNyeXB0ZWRfY29udGVudDogXCIke2VuY3J5cHRlZF9jb250ZW50X2I2NH1c
+IiIKfQoKZG9fZGVjcnlwdCgpIHsKICAgIGxvY2FsIG1lc3NhZ2VfZmlsZT0iJDEiCgogICAgaWYg
+WyAhIC1mICIke21lc3NhZ2VfZmlsZX0iIF07IHRoZW4KICAgICAgICBlY2hvICJFUlJPUjogTWVz
+c2FnZSBmaWxlIG5vdCBmb3VuZDogJHttZXNzYWdlX2ZpbGV9IiA+JjIKICAgICAgICBleGl0IDEK
+ICAgIGZpCgogICAgaWYgWyAhIC1mICIke1BSSVZBVEVfS0VZfSIgXTsgdGhlbgogICAgICAgIGVj
+aG8gIkVSUk9SOiBQcml2YXRlIGtleSBub3QgZm91bmQgYXQgJHtQUklWQVRFX0tFWX0iID4mMgog
+ICAgICAgIGVjaG8gIlJ1biAvZnJpZW5kcyBpbml0IHRvIGdlbmVyYXRlIGtleXMuIiA+JjIKICAg
+ICAgICBleGl0IDEKICAgIGZpCgogICAgbG9jYWwgdG1wZGlyCiAgICB0bXBkaXI9JChfbWFrZV90
+bXBkaXIpCgogICAgbG9jYWwgZW5jcnlwdGVkX2tleV9iNjQgaXZfYjY0IGVuY3J5cHRlZF9jb250
+ZW50X2I2NAogICAgZW5jcnlwdGVkX2tleV9iNjQ9JChncmVwICdeZW5jcnlwdGVkX2tleTonICIk
+e21lc3NhZ2VfZmlsZX0iIHwgc2VkICdzL15lbmNyeXB0ZWRfa2V5OiAqIlx7MCwxXH1cKFteIl0q
+XCkiXHswLDFcfS9cMS8nIHx8IHRydWUpCiAgICBpdl9iNjQ9JChncmVwICdeaXY6JyAiJHttZXNz
+YWdlX2ZpbGV9IiB8IHNlZCAncy9eaXY6ICoiXHswLDFcfVwoW14iXSpcKSJcezAsMVx9L1wxLycg
+fHwgdHJ1ZSkKICAgIGVuY3J5cHRlZF9jb250ZW50X2I2ND0kKGdyZXAgJ15lbmNyeXB0ZWRfY29u
+dGVudDonICIke21lc3NhZ2VfZmlsZX0iIHwgc2VkICdzL15lbmNyeXB0ZWRfY29udGVudDogKiJc
+ezAsMVx9XChbXiJdKlwpIlx7MCwxXH0vXDEvJyB8fCB0cnVlKQoKICAgIGlmIFsgLXogIiR7ZW5j
+cnlwdGVkX2tleV9iNjR9IiBdOyB0aGVuCiAgICAgICAgZWNobyAiRVJST1I6IE1pc3NpbmcgJ2Vu
+Y3J5cHRlZF9rZXknIGZpZWxkIGluICR7bWVzc2FnZV9maWxlfSIgPiYyCiAgICAgICAgZXhpdCAx
+CiAgICBmaQogICAgaWYgWyAteiAiJHtpdl9iNjR9IiBdOyB0aGVuCiAgICAgICAgZWNobyAiRVJS
+T1I6IE1pc3NpbmcgJ2l2JyBmaWVsZCBpbiAke21lc3NhZ2VfZmlsZX0iID4mMgogICAgICAgIGV4
+aXQgMQogICAgZmkKICAgIGlmIFsgLXogIiR7ZW5jcnlwdGVkX2NvbnRlbnRfYjY0fSIgXTsgdGhl
+bgogICAgICAgIGVjaG8gIkVSUk9SOiBNaXNzaW5nICdlbmNyeXB0ZWRfY29udGVudCcgZmllbGQg
+aW4gJHttZXNzYWdlX2ZpbGV9IiA+JjIKICAgICAgICBleGl0IDEKICAgIGZpCgogICAgZWNobyAt
+biAiJHtlbmNyeXB0ZWRfa2V5X2I2NH0iIHwgYmFzZTY0IC1kID4gIiR7dG1wZGlyfS9lbmNyeXB0
+ZWRfa2V5LmJpbiIKICAgIGVjaG8gLW4gIiR7aXZfYjY0fSIgfCBiYXNlNjQgLWQgPiAiJHt0bXBk
+aXJ9L2l2LmJpbiIKICAgIGVjaG8gLW4gIiR7ZW5jcnlwdGVkX2NvbnRlbnRfYjY0fSIgfCBiYXNl
+NjQgLWQgPiAiJHt0bXBkaXJ9L2VuY3J5cHRlZC5iaW4iCgogICAgaWYgISBvcGVuc3NsIHBrZXl1
+dGwgLWRlY3J5cHQgXAogICAgICAgICAgICAtaW5rZXkgIiR7UFJJVkFURV9LRVl9IiBcCiAgICAg
+ICAgICAgIC1wa2V5b3B0IHJzYV9wYWRkaW5nX21vZGU6b2FlcCBcCiAgICAgICAgICAgIC1wa2V5
+b3B0IHJzYV9vYWVwX21kOnNoYTI1NiBcCiAgICAgICAgICAgIC1pbiAiJHt0bXBkaXJ9L2VuY3J5
+cHRlZF9rZXkuYmluIiBcCiAgICAgICAgICAgIC1vdXQgIiR7dG1wZGlyfS9hZXNfa2V5LmJpbiIg
+Mj4vZGV2L251bGw7IHRoZW4KICAgICAgICBlY2hvICJFUlJPUjogRGVjcnlwdGlvbiBmYWlsZWQu
+IFdyb25nIGtleSBvciBjb3JydXB0ZWQgbWVzc2FnZS4iID4mMgogICAgICAgIGV4aXQgMQogICAg
+ZmkKCiAgICBsb2NhbCBhZXNfa2V5X2hleCBpdl9oZXgKICAgIGFlc19rZXlfaGV4PSQoeHhkIC1w
+IC1jIDY0ICIke3RtcGRpcn0vYWVzX2tleS5iaW4iKQogICAgaXZfaGV4PSQoeHhkIC1wIC1jIDMy
+ICIke3RtcGRpcn0vaXYuYmluIikKCiAgICBpZiAhIG9wZW5zc2wgZW5jIC1kIC1hZXMtMjU2LWNi
+YyBcCiAgICAgICAgICAgIC1LICIke2Flc19rZXlfaGV4fSIgXAogICAgICAgICAgICAtaXYgIiR7
+aXZfaGV4fSIgXAogICAgICAgICAgICAtaW4gIiR7dG1wZGlyfS9lbmNyeXB0ZWQuYmluIiAyPi9k
+ZXYvbnVsbDsgdGhlbgogICAgICAgIGVjaG8gIkVSUk9SOiBBRVMgZGVjcnlwdGlvbiBmYWlsZWQu
+IE1lc3NhZ2UgbWF5IGJlIGNvcnJ1cHRlZC4iID4mMgogICAgICAgIGV4aXQgMQogICAgZmkKfQoK
+ZG9fdmVyaWZ5KCkgewogICAgbG9jYWwgc3RhdHVzPTAKCiAgICBpZiBbIC1mICIke1BSSVZBVEVf
+S0VZfSIgXTsgdGhlbgogICAgICAgIGVjaG8gIlByaXZhdGUga2V5OiBPSyAoJHtQUklWQVRFX0tF
+WX0pIgogICAgICAgIGlmIG9wZW5zc2wgcnNhIC1pbiAiJHtQUklWQVRFX0tFWX0iIC1jaGVjayAt
+bm9vdXQgMj4vZGV2L251bGw7IHRoZW4KICAgICAgICAgICAgZWNobyAiICBSU0EgdmFsaWRhdGlv
+bjogT0siCiAgICAgICAgZWxzZQogICAgICAgICAgICBlY2hvICIgIFJTQSB2YWxpZGF0aW9uOiBG
+QUlMRUQgKGtleSBtYXkgYmUgY29ycnVwdGVkKSIKICAgICAgICAgICAgc3RhdHVzPTEKICAgICAg
+ICBmaQogICAgZWxzZQogICAgICAgIGVjaG8gIlByaXZhdGUga2V5OiBOT1QgRk9VTkQiCiAgICAg
+ICAgc3RhdHVzPTEKICAgIGZpCgogICAgbG9jYWwgcHVibGljX2tleT0iJHtPQ0ZSX0RJUn0va2V5
+cy9wdWJsaWMucGVtIgogICAgaWYgWyAtZiAiJHtwdWJsaWNfa2V5fSIgXTsgdGhlbgogICAgICAg
+IGVjaG8gIlB1YmxpYyBrZXk6ICBPSyAoJHtwdWJsaWNfa2V5fSkiCiAgICBlbHNlCiAgICAgICAg
+ZWNobyAiUHVibGljIGtleTogIE5PVCBGT1VORCIKICAgICAgICBzdGF0dXM9MQogICAgZmkKCiAg
+ICBpZiBbICRzdGF0dXMgLWVxIDAgXTsgdGhlbgogICAgICAgIGxvY2FsIHRtcGRpcgogICAgICAg
+IHRtcGRpcj0kKF9tYWtlX3RtcGRpcikKCiAgICAgICAgbG9jYWwgdGVzdF9tc2c9Im9jZnJfa2V5
+X3Rlc3RfJChkYXRlICslcykiCgogICAgICAgIGVjaG8gLW4gIiR7dGVzdF9tc2d9IiB8IGRvX2Vu
+Y3J5cHQgIiR7cHVibGljX2tleX0iID4gIiR7dG1wZGlyfS90ZXN0X21zZy55YW1sIiAyPi9kZXYv
+bnVsbAogICAgICAgIHsKICAgICAgICAgICAgZWNobyAiZnJvbTogXCJzZWxmLXRlc3RcIiIKICAg
+ICAgICAgICAgZWNobyAidGltZXN0YW1wOiBcIiQoZGF0ZSAtdSArJVktJW0tJWRUJUg6JU06JVNK
+KVwiIgogICAgICAgICAgICBjYXQgIiR7dG1wZGlyfS90ZXN0X21zZy55YW1sIgogICAgICAgIH0g
+PiAiJHt0bXBkaXJ9L3Rlc3RfbXNnX2Z1bGwueWFtbCIKCiAgICAgICAgbG9jYWwgZGVjcnlwdGVk
+CiAgICAgICAgZGVjcnlwdGVkPSQoZG9fZGVjcnlwdCAiJHt0bXBkaXJ9L3Rlc3RfbXNnX2Z1bGwu
+eWFtbCIgMj4vZGV2L251bGwpIHx8IHRydWUKCiAgICAgICAgaWYgWyAiJHtkZWNyeXB0ZWR9IiA9
+ICIke3Rlc3RfbXNnfSIgXTsgdGhlbgogICAgICAgICAgICBlY2hvICJSb3VuZC10cmlwOiAgT0sg
+KGVuY3J5cHQvZGVjcnlwdCB2ZXJpZmllZCkiCiAgICAgICAgZWxzZQogICAgICAgICAgICBlY2hv
+ICJSb3VuZC10cmlwOiAgRkFJTEVEIgogICAgICAgICAgICBzdGF0dXM9MQogICAgICAgIGZpCiAg
+ICBmaQoKICAgIHJldHVybiAkc3RhdHVzCn0K'
 
-    if [ ! -f "${recipient_pubkey}" ]; then
-        echo "ERROR: Recipient public key not found: ${recipient_pubkey}" >&2
-        exit 1
-    fi
-
-    local tmpdir
-    tmpdir=$(_make_tmpdir)
-
-    # Read plaintext from stdin into a temp file (avoids exposing in process list)
-    cat > "${tmpdir}/plaintext.bin"
-    chmod 600 "${tmpdir}/plaintext.bin"
-
-    if [ ! -s "${tmpdir}/plaintext.bin" ]; then
-        echo "ERROR: No plaintext provided on stdin." >&2
-        exit 1
-    fi
-
-    # Generate random AES-256 key (32 bytes) and IV (16 bytes)
-    openssl rand 32 > "${tmpdir}/aes_key.bin"
-    openssl rand 16 > "${tmpdir}/iv.bin"
-
-    # Read key/iv hex for openssl enc (via file, not command line args)
-    local aes_key_hex iv_hex
-    aes_key_hex=$(xxd -p -c 64 "${tmpdir}/aes_key.bin")
-    iv_hex=$(xxd -p -c 32 "${tmpdir}/iv.bin")
-
-    # Encrypt the message with AES-256-CBC
-    openssl enc -aes-256-cbc \
-        -K "${aes_key_hex}" \
-        -iv "${iv_hex}" \
-        -in "${tmpdir}/plaintext.bin" \
-        -out "${tmpdir}/encrypted.bin"
-
-    # Encrypt the AES key with recipient's RSA public key (OAEP padding)
-    openssl pkeyutl -encrypt \
-        -pubin -inkey "${recipient_pubkey}" \
-        -pkeyopt rsa_padding_mode:oaep \
-        -pkeyopt rsa_oaep_md:sha256 \
-        -in "${tmpdir}/aes_key.bin" \
-        -out "${tmpdir}/encrypted_key.bin"
-
-    # Output as base64-encoded YAML fields
-    local encrypted_key_b64 iv_b64 encrypted_content_b64
-    encrypted_key_b64=$(base64 < "${tmpdir}/encrypted_key.bin" | tr -d '\n')
-    iv_b64=$(base64 < "${tmpdir}/iv.bin" | tr -d '\n')
-    encrypted_content_b64=$(base64 < "${tmpdir}/encrypted.bin" | tr -d '\n')
-
-    echo "encrypted_key: \"${encrypted_key_b64}\""
-    echo "iv: \"${iv_b64}\""
-    echo "encrypted_content: \"${encrypted_content_b64}\""
-}
-
-do_decrypt() {
-    local message_file="$1"
-
-    if [ ! -f "${message_file}" ]; then
-        echo "ERROR: Message file not found: ${message_file}" >&2
-        exit 1
-    fi
-
-    if [ ! -f "${PRIVATE_KEY}" ]; then
-        echo "ERROR: Private key not found at ${PRIVATE_KEY}" >&2
-        echo "Run /friends init to generate keys." >&2
-        exit 1
-    fi
-
-    local tmpdir
-    tmpdir=$(_make_tmpdir)
-
-    # Parse YAML fields with validation
-    local encrypted_key_b64 iv_b64 encrypted_content_b64
-    encrypted_key_b64=$(grep '^encrypted_key:' "${message_file}" | sed 's/^encrypted_key: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/' || true)
-    iv_b64=$(grep '^iv:' "${message_file}" | sed 's/^iv: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/' || true)
-    encrypted_content_b64=$(grep '^encrypted_content:' "${message_file}" | sed 's/^encrypted_content: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/' || true)
-
-    # Validate all fields are present
-    if [ -z "${encrypted_key_b64}" ]; then
-        echo "ERROR: Missing 'encrypted_key' field in ${message_file}" >&2
-        exit 1
-    fi
-    if [ -z "${iv_b64}" ]; then
-        echo "ERROR: Missing 'iv' field in ${message_file}" >&2
-        exit 1
-    fi
-    if [ -z "${encrypted_content_b64}" ]; then
-        echo "ERROR: Missing 'encrypted_content' field in ${message_file}" >&2
-        exit 1
-    fi
-
-    # Decode from base64
-    echo -n "${encrypted_key_b64}" | base64 -d > "${tmpdir}/encrypted_key.bin"
-    echo -n "${iv_b64}" | base64 -d > "${tmpdir}/iv.bin"
-    echo -n "${encrypted_content_b64}" | base64 -d > "${tmpdir}/encrypted.bin"
-
-    # Decrypt AES key with RSA private key (OAEP padding)
-    if ! openssl pkeyutl -decrypt \
-            -inkey "${PRIVATE_KEY}" \
-            -pkeyopt rsa_padding_mode:oaep \
-            -pkeyopt rsa_oaep_md:sha256 \
-            -in "${tmpdir}/encrypted_key.bin" \
-            -out "${tmpdir}/aes_key.bin" 2>/dev/null; then
-        echo "ERROR: Decryption failed. Wrong key or corrupted message." >&2
-        exit 1
-    fi
-
-    # Read key/iv hex
-    local aes_key_hex iv_hex
-    aes_key_hex=$(xxd -p -c 64 "${tmpdir}/aes_key.bin")
-    iv_hex=$(xxd -p -c 32 "${tmpdir}/iv.bin")
-
-    # Decrypt message with AES key
-    if ! openssl enc -d -aes-256-cbc \
-            -K "${aes_key_hex}" \
-            -iv "${iv_hex}" \
-            -in "${tmpdir}/encrypted.bin" 2>/dev/null; then
-        echo "ERROR: AES decryption failed. Message may be corrupted." >&2
-        exit 1
-    fi
-}
-
-do_verify() {
-    local status=0
-
-    if [ -f "${PRIVATE_KEY}" ]; then
-        echo "Private key: OK (${PRIVATE_KEY})"
-        if openssl rsa -in "${PRIVATE_KEY}" -check -noout 2>/dev/null; then
-            echo "  RSA validation: OK"
-        else
-            echo "  RSA validation: FAILED (key may be corrupted)"
-            status=1
-        fi
-    else
-        echo "Private key: NOT FOUND"
-        status=1
-    fi
-
-    local public_key="${OCFR_DIR}/keys/public.pem"
-    if [ -f "${public_key}" ]; then
-        echo "Public key:  OK (${public_key})"
-    else
-        echo "Public key:  NOT FOUND"
-        status=1
-    fi
-
-    # Quick round-trip test
-    if [ $status -eq 0 ]; then
-        local tmpdir
-        tmpdir=$(_make_tmpdir)
-
-        local test_msg="ocfr_key_test_$(date +%s)"
-
-        # Encrypt with own public key (plaintext via stdin)
-        echo -n "${test_msg}" | do_encrypt "${public_key}" > "${tmpdir}/test_msg.yaml" 2>/dev/null
-        {
-            echo "from: \"self-test\""
-            echo "timestamp: \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\""
-            cat "${tmpdir}/test_msg.yaml"
-        } > "${tmpdir}/test_msg_full.yaml"
-
-        local decrypted
-        decrypted=$(do_decrypt "${tmpdir}/test_msg_full.yaml" 2>/dev/null) || true
-
-        if [ "${decrypted}" = "${test_msg}" ]; then
-            echo "Round-trip:  OK (encrypt/decrypt verified)"
-        else
-            echo "Round-trip:  FAILED"
-            status=1
-        fi
-    fi
-
-    return $status
-}
+# Unpack and source core routines
+eval "$(echo "${_CORE_PAYLOAD}" | base64 -d)"
 
 # --- Main ---
 

@@ -1,0 +1,37 @@
+username: "nairobi_data"
+display_name: "Amara"
+github: "nairobi_data"
+avatar_url: "https://github.com/identicons/nairobi_data.png"
+bio: "Data scientist in Nairobi. Working on agricultural ML models for East Africa."
+interests:
+  - "machine learning"
+  - "agriculture tech"
+  - "data visualization"
+  - "open data"
+  - "climate science"
+skills:
+  - "Python"
+  - "PyTorch"
+  - "pandas"
+  - "GIS"
+looking_for:
+  - "ML research partners"
+  - "open-source contributors"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-20"
+ideal_type:
+  preferred_interests:
+    - "machine learning"
+    - "social impact"
+  preferred_skills:
+    - "data science"
+    - "Python"
+  personality_traits:
+    - "curious"
+    - "mission-driven"
+  deal_breakers: []
+  description: "People building tech for real-world impact, especially in developing regions."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

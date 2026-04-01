@@ -1,0 +1,36 @@
+username: "lisbon_indie"
+display_name: "Sofia"
+github: "lisbon_indie"
+avatar_url: "https://github.com/identicons/lisbon_indie.png"
+bio: "Indie game developer and digital nomad. Currently making a roguelike."
+interests:
+  - "indie games"
+  - "procedural generation"
+  - "travel"
+  - "Portuguese wine"
+skills:
+  - "Godot"
+  - "GDScript"
+  - "shader programming"
+  - "pixel art"
+looking_for:
+  - "indie game developers"
+  - "game jam buddies"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-18"
+ideal_type:
+  preferred_interests:
+    - "indie games"
+    - "procedural generation"
+  preferred_skills:
+    - "Godot"
+    - "GDScript"
+  personality_traits:
+    - "curious"
+    - "open-minded"
+  deal_breakers: []
+  description: "Creators who ship small, polished experiences."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

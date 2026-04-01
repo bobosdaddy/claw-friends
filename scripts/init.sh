@@ -104,10 +104,16 @@ clone_repo() {
             cp "${gitignore_template}" .gitignore
         fi
 
+        # Install seed profiles for cold-start
+        local seed_script="${script_dir}/seed.sh"
+        if [ -x "${seed_script}" ]; then
+            bash "${seed_script}" install 2>/dev/null || true
+        fi
+
         # Only commit if there are new directories to add
         if [ -n "$(git status --porcelain)" ]; then
             git add profiles/ matches/ messages/ negotiations/ connects/ .gitignore 2>/dev/null || true
-            git commit -m "chore: initialize directory structure"
+            git commit -m "chore: initialize directory structure and seed profiles"
             git push origin HEAD 2>/dev/null || true
         fi
 
@@ -132,9 +138,15 @@ show_status() {
     fi
 
     if [ -d "${REPO_DIR}/.git" ]; then
-        local profile_count
-        profile_count=$(find "${REPO_DIR}/profiles" -name "*.yaml" 2>/dev/null | wc -l | tr -d ' ')
-        echo "Repo:    OK (${profile_count} profiles)"
+        # Show real community count (excluding seed profiles)
+        local total=0
+        local seed=0
+        if [ -d "${REPO_DIR}/profiles" ]; then
+            total=$(find "${REPO_DIR}/profiles" -name "*.yaml" | wc -l | tr -d ' ')
+            seed=$(grep -rl 'is_seed: true' "${REPO_DIR}/profiles/" 2>/dev/null | wc -l | tr -d ' ')
+        fi
+        local profile_count=$((total - seed))
+        echo "Repo:    OK (${profile_count} community members)"
     else
         echo "Repo:    NOT CLONED"
     fi

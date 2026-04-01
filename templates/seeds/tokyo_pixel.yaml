@@ -1,0 +1,37 @@
+username: "tokyo_pixel"
+display_name: "Pixel"
+github: "tokyo_pixel"
+avatar_url: "https://github.com/identicons/tokyo_pixel.png"
+bio: "Retro game dev from Tokyo. Building pixel art tools and chiptune generators."
+interests:
+  - "pixel art"
+  - "retro gaming"
+  - "chiptune"
+  - "game design"
+  - "japanese culture"
+skills:
+  - "C++"
+  - "SDL2"
+  - "sprite animation"
+  - "music composition"
+looking_for:
+  - "game jam partners"
+  - "pixel art collaborators"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-15"
+ideal_type:
+  preferred_interests:
+    - "game development"
+    - "creative coding"
+  preferred_skills:
+    - "game design"
+    - "sound design"
+  personality_traits:
+    - "creative"
+    - "patient"
+  deal_breakers: []
+  description: "Someone who loves building fun things and doesn't mind late-night coding sessions."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

@@ -1,0 +1,37 @@
+username: "chengdu_panda"
+display_name: "Xiaoming"
+github: "chengdu_panda"
+avatar_url: "https://github.com/identicons/chengdu_panda.png"
+bio: "Backend engineer who loves hotpot and distributed systems."
+interests:
+  - "distributed systems"
+  - "hotpot"
+  - "pandas"
+  - "photography"
+  - "Go"
+skills:
+  - "Go"
+  - "etcd"
+  - "gRPC"
+  - "Redis"
+looking_for:
+  - "distributed systems study group"
+  - "Go contributors"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-14"
+ideal_type:
+  preferred_interests:
+    - "distributed systems"
+    - "hotpot"
+  preferred_skills:
+    - "Go"
+    - "etcd"
+  personality_traits:
+    - "pragmatic"
+    - "reliable"
+  deal_breakers: []
+  description: "Engineers who enjoy whiteboard discussions over hotpot."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

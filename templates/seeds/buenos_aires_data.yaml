@@ -1,0 +1,37 @@
+username: "buenos_aires_data"
+display_name: "Valentina"
+github: "buenos_aires_data"
+avatar_url: "https://github.com/identicons/buenos_aires_data.png"
+bio: "Data engineer building real-time pipelines. Tango dancer on weekends."
+interests:
+  - "data engineering"
+  - "streaming"
+  - "tango"
+  - "mate"
+  - "astronomy"
+skills:
+  - "Apache Kafka"
+  - "Spark"
+  - "dbt"
+  - "Python"
+looking_for:
+  - "data engineering peers"
+  - "streaming architecture discussions"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-26"
+ideal_type:
+  preferred_interests:
+    - "data engineering"
+    - "streaming"
+  preferred_skills:
+    - "Apache Kafka"
+    - "Spark"
+  personality_traits:
+    - "curious"
+    - "open-minded"
+  deal_breakers: []
+  description: "Data people who appreciate both batch and stream."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

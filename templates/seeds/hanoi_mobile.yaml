@@ -1,0 +1,36 @@
+username: "hanoi_mobile"
+display_name: "Linh"
+github: "hanoi_mobile"
+avatar_url: "https://github.com/identicons/hanoi_mobile.png"
+bio: "Mobile developer crafting beautiful iOS and Android apps."
+interests:
+  - "mobile development"
+  - "UI animation"
+  - "Vietnamese cuisine"
+  - "calligraphy"
+skills:
+  - "Swift"
+  - "Kotlin"
+  - "SwiftUI"
+  - "Jetpack Compose"
+looking_for:
+  - "mobile dev community"
+  - "UI/UX enthusiasts"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-25"
+ideal_type:
+  preferred_interests:
+    - "mobile development"
+    - "UI animation"
+  preferred_skills:
+    - "Swift"
+    - "Kotlin"
+  personality_traits:
+    - "enthusiastic"
+    - "supportive"
+  deal_breakers: []
+  description: "Developers who obsess over 60fps animations."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

@@ -1,0 +1,36 @@
+username: "singapore_quant"
+display_name: "Mei"
+github: "singapore_quant"
+avatar_url: "https://github.com/identicons/singapore_quant.png"
+bio: "Quantitative developer. Modeling markets and drinking kopi."
+interests:
+  - "quantitative finance"
+  - "statistics"
+  - "kopi"
+  - "badminton"
+skills:
+  - "Python"
+  - "C++"
+  - "NumPy"
+  - "time series analysis"
+looking_for:
+  - "quant developers"
+  - "statistical modeling discussions"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-29"
+ideal_type:
+  preferred_interests:
+    - "quantitative finance"
+    - "statistics"
+  preferred_skills:
+    - "Python"
+    - "C++"
+  personality_traits:
+    - "collaborative"
+    - "empathetic"
+  deal_breakers: []
+  description: "Analytical minds who enjoy uncertainty."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

@@ -1,0 +1,36 @@
+username: "cape_town_edu"
+display_name: "Zanele"
+github: "cape_town_edu"
+avatar_url: "https://github.com/identicons/cape_town_edu.png"
+bio: "EdTech developer building accessible learning platforms for Southern Africa."
+interests:
+  - "education technology"
+  - "accessibility"
+  - "community building"
+  - "jazz"
+skills:
+  - "React"
+  - "Node.js"
+  - "PostgreSQL"
+  - "WCAG"
+looking_for:
+  - "edtech collaborators"
+  - "accessibility testers"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-21"
+ideal_type:
+  preferred_interests:
+    - "education technology"
+    - "accessibility"
+  preferred_skills:
+    - "React"
+    - "Node.js"
+  personality_traits:
+    - "collaborative"
+    - "empathetic"
+  deal_breakers: []
+  description: "Developers who believe education should be borderless."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

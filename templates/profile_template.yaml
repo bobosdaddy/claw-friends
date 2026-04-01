@@ -28,3 +28,4 @@ ideal_type:
   description: "${IDEAL_DESCRIPTION}"
 agreement_accepted: ${AGREEMENT_ACCEPTED}
 agreement_accepted_at: "${AGREEMENT_ACCEPTED_AT}"
+is_seed: ${IS_SEED}

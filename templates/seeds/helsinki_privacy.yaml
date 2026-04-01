@@ -1,0 +1,37 @@
+username: "helsinki_privacy"
+display_name: "Aino"
+github: "helsinki_privacy"
+avatar_url: "https://github.com/identicons/helsinki_privacy.png"
+bio: "Privacy engineer building zero-knowledge proof systems."
+interests:
+  - "privacy"
+  - "cryptography"
+  - "zero-knowledge proofs"
+  - "sauna"
+  - "Nordic noir"
+skills:
+  - "Rust"
+  - "ZK-SNARKs"
+  - "Circom"
+  - "formal verification"
+looking_for:
+  - "privacy researchers"
+  - "ZK developers"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-12"
+ideal_type:
+  preferred_interests:
+    - "privacy"
+    - "cryptography"
+  preferred_skills:
+    - "Rust"
+    - "ZK-SNARKs"
+  personality_traits:
+    - "enthusiastic"
+    - "supportive"
+  deal_breakers: []
+  description: "Cryptographers who believe privacy is a human right."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

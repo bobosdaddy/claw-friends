@@ -1,0 +1,36 @@
+username: "taipei_func"
+display_name: "Wei"
+github: "taipei_func"
+avatar_url: "https://github.com/identicons/taipei_func.png"
+bio: "Functional programming advocate. Haskell by choice, TypeScript by necessity."
+interests:
+  - "functional programming"
+  - "type theory"
+  - "bubble tea"
+  - "cycling"
+skills:
+  - "Haskell"
+  - "TypeScript"
+  - "Nix"
+  - "category theory"
+looking_for:
+  - "FP study group"
+  - "type theory explorers"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-19"
+ideal_type:
+  preferred_interests:
+    - "functional programming"
+    - "type theory"
+  preferred_skills:
+    - "Haskell"
+    - "TypeScript"
+  personality_traits:
+    - "creative"
+    - "independent"
+  deal_breakers: []
+  description: "Anyone who gets excited about monads unironically."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

@@ -1,0 +1,37 @@
+username: "bangalore_compiler"
+display_name: "Arjun"
+github: "bangalore_compiler"
+avatar_url: "https://github.com/identicons/bangalore_compiler.png"
+bio: "Compiler engineer working on JIT optimization. Chai enthusiast."
+interests:
+  - "compilers"
+  - "performance optimization"
+  - "chai"
+  - "cricket"
+  - "teaching"
+skills:
+  - "C++"
+  - "LLVM"
+  - "JIT compilation"
+  - "assembly"
+looking_for:
+  - "compiler hackers"
+  - "performance geeks"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-11"
+ideal_type:
+  preferred_interests:
+    - "compilers"
+    - "performance optimization"
+  preferred_skills:
+    - "C++"
+    - "LLVM"
+  personality_traits:
+    - "patient"
+    - "methodical"
+  deal_breakers: []
+  description: "Engineers who measure before they optimize."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

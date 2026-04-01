@@ -1,0 +1,37 @@
+username: "sydney_design"
+display_name: "Tara"
+github: "sydney_design"
+avatar_url: "https://github.com/identicons/sydney_design.png"
+bio: "UX designer turned design engineer. Bridging design and code."
+interests:
+  - "UX design"
+  - "design systems"
+  - "surfing"
+  - "accessibility"
+  - "typography"
+skills:
+  - "Figma"
+  - "React"
+  - "CSS"
+  - "Storybook"
+looking_for:
+  - "design system collaborators"
+  - "accessibility advocates"
+platforms: {}
+public_key: ""
+updated_at: "2026-03-15"
+ideal_type:
+  preferred_interests:
+    - "UX design"
+    - "design systems"
+  preferred_skills:
+    - "Figma"
+    - "React"
+  personality_traits:
+    - "innovative"
+    - "bold"
+  deal_breakers: []
+  description: "People who believe good design is invisible."
+agreement_accepted: false
+agreement_accepted_at: ""
+is_seed: true

@@ -81,12 +81,18 @@ Activate when the user mentions any of: "friends", "friend", "social", "match", 
 4. **Validate init state.** Before any command except `init`, check that `~/.ocfr/config.yaml` exists. If not, tell the user to run `/friends init` first.
 5. **Use immutable writes.** When updating a YAML file, generate the complete new content and overwrite the file. Do not patch in place.
 6. **Handle git conflicts.** If push fails, run `bash {baseDir}/scripts/sync.sh pull` then retry push. Max 3 retries.
+7. **Seed profile rules.** Profiles with `is_seed: true` are synthetic cold-start data. They MUST be:
+   - **Excluded** from community member counts shown to users (use `bash {baseDir}/scripts/sync.sh status` which already filters them).
+   - **Excluded** from `/friends explore` listings and `/friends match` results.
+   - **Excluded** from auto-negotiation targets (`/friends auto discover` skips them).
+   - **Never targetable** for `/friends request`, `/friends msg`, or `/friends auto <user>`. If a user tries to interact with a seed profile, respond: "This is a sample profile for demonstration purposes."
+   - Seed profiles are installed automatically during `init clone` via `bash {baseDir}/scripts/seed.sh install`.
 
 ---
 
 ### /friends init
 
-**Purpose**: First-time setup for a new user.
+**Purpose**: One-step setup for a new user. Minimal user input — everything else is auto-detected or deferred.
 
 **Steps**:
 
@@ -97,55 +103,48 @@ Activate when the user mentions any of: "friends", "friend", "social", "match", 
    ```
    If any check fails, tell the user what to install or configure and stop.
 
-2. Get the GitHub username:
+2. Auto-detect GitHub profile:
    ```bash
-   gh api user --jq '.login'
+   gh api user --jq '{login: .login, name: .name, bio: .bio}'
    ```
-   Store as `$USERNAME`.
+   Store `login` as `$USERNAME`, `name` as `$GH_NAME`, `bio` as `$GH_BIO`.
 
-3. **Step 1: Personal Profile** — Ask the user to fill in their profile interactively. Collect:
-   - `display_name` (required, string)
-   - `bio` (required, max 200 chars)
-   - `interests` (required, 1-10 tags as comma-separated list)
-   - `skills` (required, 1-10 tags as comma-separated list)
-   - `looking_for` (required, 1-5 items as comma-separated list)
-   - `platforms` (optional: telegram, discord, wechat, email — **these will only be shared after mutual match**)
+3. **Ask only one question**: display_name.
+   - Pre-fill with `$GH_NAME` (from GitHub) and show it as default.
+   - Example prompt: `"显示名称 / Display name [${GH_NAME}]: "`
+   - If the user presses Enter or says "ok", use the default.
+   - This is the **only interactive input** during init.
 
-4. **Step 2: Ideal Type** — Ask the user to describe their ideal match. Collect:
-   - `preferred_interests` (optional, 1-10 tags) — interests they hope to find in a friend
-   - `preferred_skills` (optional, 1-10 tags) — skills they value
-   - `personality_traits` (optional, 1-5 tags) — e.g. "patient", "creative", "detail-oriented"
-   - `deal_breakers` (optional, 1-5 items) — things they want to avoid
-   - `description` (optional, max 200 chars) — free-text description of their ideal match
+4. Auto-generate remaining profile fields:
+   - `bio`: Use `$GH_BIO` from GitHub. If empty, set to `"Hello from @${USERNAME}!"`.
+   - `interests`: Set to `[]` (empty — user fills in later via `/friends profile edit`).
+   - `skills`: Set to `[]` (empty).
+   - `looking_for`: Set to `["interesting conversations"]`.
+   - `platforms`: Set to `{}` (empty — user adds later).
+   - `ideal_type`: Set all sub-fields to empty/null (user configures later via `/friends profile edit`).
+   - `agreement_accepted`: Set to `false` (deferred to first `/friends auto` use).
+   - `is_seed`: Set to `false`.
 
-   Tell the user: "This helps your Claw find better matches during auto-negotiation. You can skip any field and edit later."
-
-5. **Step 3: User Agreement** — Display the user agreement:
-   ```bash
-   cat {baseDir}/templates/user_agreement.md
-   ```
-   Wait for the user to type "我同意" or "I agree". If they decline, set `agreement_accepted: false` in the profile — they can still use manual features (profile, explore, match, request, msg) but `/friends auto` commands will be blocked until they accept.
-
-6. Generate RSA key pair:
+5. Generate RSA key pair:
    ```bash
    bash {baseDir}/scripts/init.sh keygen
    ```
 
-7. Clone the repo (or pull if already cloned):
+6. Clone the repo (or pull if already cloned):
    ```bash
    bash {baseDir}/scripts/init.sh clone [repo_url]
    ```
    Default repo: `https://github.com/bobosdaddy/claw-friends-data`
    The user may specify a different repo URL.
 
-8. Read the generated public key:
+7. Read the generated public key:
    ```bash
    cat ~/.ocfr/keys/public.pem
    ```
 
-9. Generate the profile YAML with all collected fields (including `ideal_type` and `agreement_accepted` / `agreement_accepted_at`) + the public key + `updated_at` set to current UTC date. Write it to `~/.ocfr/repo/profiles/$USERNAME.yaml`.
+8. Generate the profile YAML with all fields + the public key + `updated_at` set to current UTC date. Write it to `~/.ocfr/repo/profiles/$USERNAME.yaml`.
 
-10. Write the local config to `~/.ocfr/config.yaml`:
+9. Write the local config to `~/.ocfr/config.yaml`:
     ```yaml
     username: "<USERNAME>"
     repo_url: "<REPO_URL>"
@@ -158,12 +157,24 @@ Activate when the user mentions any of: "friends", "friend", "social", "match", 
     max_rounds: 10
     ```
 
-11. Sync (push the new profile):
+10. Sync (push the new profile):
     ```bash
     bash {baseDir}/scripts/sync.sh push
     ```
 
-12. Show the user their rendered profile card (including ideal type summary) and confirm success.
+11. Show the user a success message with their profile card and tips:
+    ```
+    ✅ Claw Friends 初始化完成！
+    
+    [profile card]
+    
+    💡 下一步:
+    • /friends profile edit — 完善个人资料、兴趣和理想型
+    • /friends explore — 浏览社区成员
+    • /friends auto discover — 开始自动交友（首次使用需接受用户协议）
+    ```
+
+**Lazy consent**: The user agreement is NOT shown during init. Instead, it is presented the first time the user runs any `/friends auto` command. If they decline at that point, auto-negotiation is blocked but all other features remain available.
 
 **If already initialized**: Check if `~/.ocfr/config.yaml` exists. If so, ask "You're already set up. Do you want to reconfigure?" If yes, proceed. If no, stop.
 
@@ -230,10 +241,10 @@ Activate when the user mentions any of: "friends", "friend", "social", "match", 
 
 **Steps**:
 1. Sync pull.
-2. List all `~/.ocfr/repo/profiles/*.yaml` files.
-3. Read each file, exclude your own username.
+2. Get community count from `bash {baseDir}/scripts/sync.sh status` (returns real user count, seed profiles excluded).
+3. List all `~/.ocfr/repo/profiles/*.yaml` files for browsing, exclude your own username and profiles with `is_seed: true`.
 4. Sort by `updated_at` descending (most recently active first).
-5. Display a paginated summary list (10 per page):
+5. Display a paginated summary list (10 per page). Use the real count from step 2 as the total:
 
 ```
 Community Members ({total} people)
@@ -258,7 +269,7 @@ Community Members ({total} people)
 **Steps**:
 1. Sync pull.
 2. Read your own profile.
-3. Read all other profiles.
+3. Read all other profiles (exclude profiles with `is_seed: true`).
 4. For each candidate, compute a match score:
 
    **interests_score (40% weight)**:
@@ -312,7 +323,7 @@ Match Recommendations
 
 **Steps**:
 1. Sync pull.
-2. Validate target user exists in `profiles/`.
+2. Validate target user exists in `profiles/`. If the target profile has `is_seed: true`, respond: "This is a sample profile for demonstration purposes." and stop.
 3. Check for duplicate: if `matches/<user>/from_<me>.yaml` exists and `status: pending`, tell the user they already sent a request.
 4. **Check for mutual request**: if `matches/<me>/from_<user>.yaml` exists with `status: pending`, auto-accept both directions. Tell the user: "{user} already sent you a request! You're now friends. Use `/friends msg {user}` to chat."
 5. If no duplicate or mutual, ask: "Send a message with your request? (optional)"
@@ -391,7 +402,8 @@ Inbox
 #### If message text is provided (SEND mode):
 
 1. Sync pull.
-2. **Check friendship**: Verify that a match file exists with `status: accepted` between you and the target user (check both `matches/<user>/from_<me>.yaml` and `matches/<me>/from_<user>.yaml`). If not friends, tell user to send a request first.
+2. If the target user's profile has `is_seed: true`, respond: "This is a sample profile for demonstration purposes." and stop.
+3. **Check friendship**: Verify that a match file exists with `status: accepted` between you and the target user (check both `matches/<user>/from_<me>.yaml` and `matches/<me>/from_<user>.yaml`). If not friends, tell user to send a request first.
 3. Read target user's profile to get their `public_key`. Write it to a secure temp file:
    ```bash
    TMPFILE=$(mktemp /tmp/ocfr_pub_XXXXXX.pem)
@@ -474,13 +486,17 @@ Type a message to reply, or /back to return.
 
 **Purpose**: Initiate an automated negotiation with a specific user. Both Claws exchange information progressively until mutual affinity is reached or the negotiation ends.
 
-**Prerequisites**: `agreement_accepted: true` in your profile. If not, tell the user to run `/friends init` again or `/friends profile edit` to accept the agreement.
+**Prerequisites**: `agreement_accepted: true` in your profile. If not, trigger the **lazy consent flow**:
+1. Display the user agreement: `cat {baseDir}/templates/user_agreement.md`
+2. Ask the user to type "我同意" or "I agree".
+3. If they agree: set `agreement_accepted: true` and `agreement_accepted_at` to current UTC timestamp in their profile, sync push, then continue with the auto command.
+4. If they decline: stop and inform them that auto-negotiation requires agreement acceptance. All other features remain available.
 
 **Steps**:
 
 1. Sync pull.
 2. Validate:
-   - Target user exists in `profiles/`.
+   - Target user exists in `profiles/`. If the target profile has `is_seed: true`, respond: "This is a sample profile for demonstration purposes." and stop.
    - Your profile has `agreement_accepted: true`.
    - Target user's profile has `agreement_accepted: true`. If not, tell the user: "{user} has not enabled auto-negotiation."
    - No active negotiation exists between you two (check `negotiations/` directory).
@@ -753,7 +769,7 @@ When processing received knowledge nuggets for the friendship report:
 
 **Steps**:
 1. Sync pull.
-2. Validate `agreement_accepted: true`.
+2. Validate `agreement_accepted: true`. If not, trigger the **lazy consent flow** (same as `/friends auto <user>` prerequisites). If declined, stop.
 3. Run the same matching algorithm as `/friends match`.
 4. From the top results, filter for users who have `agreement_accepted: true` in their profile.
 5. Filter out users you already have an active or completed negotiation with.
@@ -930,7 +946,7 @@ For partial reports (non-match), only show the learning insights section:
 | Not friends (msg) | "You need to be friends first. Send a request: `/friends request {user}`" |
 | Decryption failure | "Could not decrypt message. Your key may have changed. Messages sent before a rekey cannot be read." |
 | Push conflict | Auto-retry with pull-rebase up to 3 times. If still failing, ask user to run `/friends sync`. |
-| Agreement not accepted | "Auto-negotiation requires accepting the user agreement. Run `/friends init` or `/friends profile edit` to accept." |
+| Agreement not accepted | Trigger the lazy consent flow: display the agreement and ask the user to accept. If declined, block auto commands only. |
 | Target not opted in | "{user} has not enabled auto-negotiation yet." |
 | Negotiation already exists | "You already have an active negotiation with {user}. Use `/friends auto status` to check." |
 | Negotiation cancelled | "This negotiation was cancelled." |
