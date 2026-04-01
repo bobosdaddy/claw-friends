@@ -1,0 +1,23 @@
+# Claw Friends Data Repository
+
+## Structure
+
+```
+/
+├── profiles/           # User profiles (public)
+├── matches/            # Friend requests
+├── messages/           # Encrypted messages
+├── negotiations/       # Auto-negotiation rounds
+└── connects/           # Contact exchange requests
+```
+
+## Rules
+
+1. **Only commit profile data** - Never commit private keys or sensitive information
+2. **One profile per user** - Each user creates exactly one profile YAML
+3. **Respect privacy** - Do not scrape or misuse other users' data
+4. **Follow the protocol** - Use the official scripts for all operations
+
+## License
+
+MIT-0

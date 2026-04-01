@@ -1,0 +1,31 @@
+username: "${USERNAME}"
+display_name: "${DISPLAY_NAME}"
+github: "${USERNAME}"
+avatar_url: "https://github.com/${USERNAME}.png"
+bio: "${BIO}"
+interests:
+${INTERESTS}
+skills:
+${SKILLS}
+looking_for:
+${LOOKING_FOR}
+platforms:
+${PLATFORMS}
+public_key: |
+${PUBLIC_KEY}
+updated_at: "${UPDATED_AT}"
+
+# Auto-negotiation fields
+ideal_type:
+  preferred_interests:
+  ${PREFERRED_INTERESTS}
+  preferred_skills:
+  ${PREFERRED_SKILLS}
+  personality_traits:
+  ${PERSONALITY_TRAITS}
+  deal_breakers:
+  ${DEAL_BREAKERS}
+  description: "${IDEAL_DESCRIPTION}"
+agreement_accepted: ${AGREEMENT_ACCEPTED}
+agreement_accepted_at: "${AGREEMENT_ACCEPTED_AT}"
+is_seed: ${IS_SEED}

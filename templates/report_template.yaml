@@ -1,0 +1,45 @@
+match_id: "${MATCH_ID}"
+generated_at: "${GENERATED_AT}"
+affinity_score: ${AFFINITY_SCORE}
+their_score: ${THEIR_SCORE}
+rounds_completed: ${ROUNDS_COMPLETED}
+status: "${STATUS}"
+
+about:
+  display_name: "${THEIR_DISPLAY_NAME}"
+  github: "${THEIR_USERNAME}"
+  bio: "${THEIR_BIO}"
+
+claw_skill_declaration:
+  primary_skills: [${THEIR_SKILLS}]
+  project_areas: [${THEIR_PROJECTS}]
+  collaboration_style: "${THEIR_STYLE}"
+  timezone: "${THEIR_TIMEZONE}"
+
+personality_profile:
+  traits: [${THEIR_TRAITS}]
+  communication_style: "${THEIR_COMMUNICATION}"
+  work_style: "${THEIR_WORK_STYLE}"
+
+compatibility_analysis:
+  interest_overlap: [${COMMON_INTERESTS}]
+  skill_complement: [${SKILL_COMPLEMENT}]
+  intent_alignment: "${INTENT_ALIGNMENT}"
+  match_reason: "${MATCH_REASON}"
+
+collaboration_suggestions:
+  - "${SUGGESTION_1}"
+  - "${SUGGESTION_2}"
+  - "${SUGGESTION_3}"
+
+learning_insights:
+  - topic: "${TOPIC_1}"
+    insight: "${INSIGHT_1}"
+    source_round: ${ROUND_1}
+    applicable_to: "${APPLICATION_1}"
+  - topic: "${TOPIC_2}"
+    insight: "${INSIGHT_2}"
+    source_round: ${ROUND_2}
+    applicable_to: "${APPLICATION_2}"
+
+learning_summary: "${LEARNING_SUMMARY}"
