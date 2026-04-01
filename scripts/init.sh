@@ -12,10 +12,11 @@ usage() {
     echo "Usage: $0 <command> [args]"
     echo ""
     echo "Commands:"
-    echo "  keygen              Generate RSA-2048 key pair"
-    echo "  clone [repo_url]    Clone the social repo (default: ${DEFAULT_REPO})"
-    echo "  check               Verify prerequisites are installed"
-    echo "  status              Show current init status"
+    echo "  check              Verify prerequisites are installed"
+    echo "  keygen             Generate RSA-2048 key pair"
+    echo "  clone [repo_url]   Clone the social repo (default: ${DEFAULT_REPO})"
+    echo "  enhance <username> Infer tags from GitHub profile"
+    echo "  status             Show current init status"
     exit 1
 }
 
@@ -121,6 +122,86 @@ clone_repo() {
     fi
 }
 
+# Enhance profile from GitHub data (languages, topics, stars)
+enhance_from_github() {
+    local username="$1"
+
+    echo "Analyzing GitHub profile..."
+
+    # Use GraphQL for batched data fetch
+    local response
+    response=$(gh api graphql -f query='
+      query($user: String!) {
+        user(login: $user) {
+          name
+          bio
+          repositories(first: 100, ownership: OWNER, orderBy: {field: PUSHED_AT, direction: DESC}) {
+            nodes {
+              primaryLanguage { name }
+              topics { nodes { name } }
+            }
+          }
+          starredRepositories(first: 100) {
+            nodes {
+              topics { nodes { name } }
+            }
+          }
+        }
+      }
+    ' -F user="$username" 2>/dev/null) || {
+        echo "WARN: GitHub API call failed, skipping enhancement"
+        return 1
+    }
+
+    # Extract languages (top 3)
+    local languages
+    languages=$(echo "$response" | jq -r '
+        .data.user.repositories.nodes
+        | map(select(.primaryLanguage != null))
+        | group_by(.primaryLanguage.name)
+        | map({name: .[0].primaryLanguage.name, count: length})
+        | sort_by(-.count)
+        | .[0:3]
+        | .[].name
+    ' 2>/dev/null | tr '\n' ',' | sed 's/,$//')
+
+    # Extract topics (top 2)
+    local topics
+    topics=$(echo "$response" | jq -r '
+        [.data.user.repositories.nodes[].topics.nodes[].name,
+         .data.user.starredRepositories.nodes[].topics.nodes[].name]
+        | flatten
+        | group_by(.)
+        | map({name: .[0], count: length})
+        | sort_by(-.count)
+        | .[0:2]
+        | .[].name
+    ' 2>/dev/null | tr '\n' ',' | sed 's/,$//')
+
+    # Combine recommendations
+    local recommendations=()
+    if [[ -n "$languages" ]]; then
+        IFS=',' read -ra lang_array <<< "$languages"
+        for lang in "${lang_array[@]}"; do
+            [[ -n "$lang" && "$lang" != "null" ]] && recommendations+=("$lang")
+        done
+    fi
+
+    if [[ -n "$topics" ]]; then
+        IFS=',' read -ra topic_array <<< "$topics"
+        for topic in "${topic_array[@]}"; do
+            [[ -n "$topic" && "$topic" != "null" ]] && recommendations+=("$topic")
+        done
+    fi
+
+    # Return comma-separated list
+    if [[ ${#recommendations[@]} -gt 0 ]]; then
+        printf '%s\n' "${recommendations[@]}" | tr '\n' ',' | sed 's/,$//'
+    else
+        echo ""
+    fi
+}
+
 show_status() {
     echo "Claw Friends Status"
     echo "───────────────────────"
@@ -167,6 +248,13 @@ case "$1" in
         ;;
     clone)
         clone_repo "${2:-}"
+        ;;
+    enhance)
+        if [ -z "${2:-}" ]; then
+            echo "ERROR: enhance requires <username>" >&2
+            exit 1
+        fi
+        enhance_from_github "$2"
         ;;
     status)
         show_status

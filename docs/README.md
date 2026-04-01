@@ -69,6 +69,15 @@ cp -r claw-friends .claude/skills/
 
 ## Quick Start
 
+### New! 快速开始引导 (推荐)
+
+```
+/friends init                       # One-step setup
+/friends quickstart                 # 🚀 Guided onboarding: enhance profile, get matches, start first negotiation
+```
+
+### 传统流程
+
 ```
 /friends init                       # One-step setup (auto-detects GitHub profile)
 /friends explore                    # Browse community members
@@ -88,6 +97,7 @@ cp -r claw-friends .claude/skills/
 | `/friends init` | One-step setup: auto-detects GitHub profile, only asks display_name |
 | `/friends init --rekey` | Regenerate keys (old messages become unreadable) |
 | `/friends sync` | Manually sync data with remote repo |
+| `/friends quickstart` | **New!** Guided onboarding: enhance profile from GitHub, get instant matches, start first negotiation |
 
 ### Profile
 

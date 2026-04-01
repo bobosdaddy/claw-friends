@@ -62,6 +62,7 @@ Activate when the user mentions any of: "friends", "friend", "social", "match", 
 | `/friends auto stop <user>` | Cancel a negotiation |
 | `/friends report [user]` | View friendship report (latest or specific user) |
 | `/friends connect <user>` | Request contact exchange (optional, requires mutual match) |
+| `/friends quickstart` | **New!** One-step guided onboarding: enhance profile from GitHub, get instant matches, start first auto-negotiation |
 
 ## Configuration
 
@@ -933,6 +934,109 @@ For partial reports (non-match), only show the learning insights section:
       Where `encrypted_contact` is your `platforms` field encrypted with the target user's public key.
    b. Sync push.
    c. Tell the user: "Connect request sent to {user}. They'll need to run `/friends connect {your_username}` to complete the exchange."
+
+---
+
+### /friends quickstart
+
+**Purpose**: One-step guided onboarding for new users. Completes profile enhancement, match discovery, and first auto-negotiation in 3 steps.
+
+**Prerequisites**: 
+- Completed `/friends init`
+- Profile completeness >= 30% (will prompt to edit if lower)
+
+**Steps**:
+
+1. **Sync pull** to get latest community data.
+
+2. **Check profile completeness**:
+   - Calculate score using the algorithm in "Profile Completeness Scoring" below
+   - If score < 30%: prompt user to edit profile via `/friends profile edit`
+   - Display current score to user
+
+3. **Check user agreement**:
+   - Read `agreement_accepted` from user's profile
+   - If `false`: display user agreement (`templates/user_agreement.md`)
+   - Ask user to type "我同意" or "I agree"
+   - If agreed:
+     - Update profile: `agreement_accepted: true`, `agreement_accepted_at: <ISO 8601 UTC>`
+     - Sync push
+   - If declined: stop and inform user that auto-negotiation requires agreement
+
+4. **GitHub profile enhancement (optional)**:
+   - If user's `interests` < 3 OR `skills` < 3:
+     - Call `bash {baseDir}/scripts/quickstart.sh enhance` to infer tags from GitHub
+     - Show inferred tags: languages from repos, topics from repos/stars
+     - Ask: "Add these tags to your profile? [Y/n]"
+     - If yes: update profile with inferred tags, sync push
+
+5. **Run matching algorithm**:
+   - Call `bash {baseDir}/scripts/quickstart.sh matches --top 5`
+   - Get Top 5 matches with scores, common interests, skill complements
+
+6. **Display Top 3 matches**:
+   ```
+   ════════════════════════════════════════════
+   为你推荐 (Top 3)
+   ════════════════════════════════════════════
+
+   1. @chengdu_panda (Panda Claw) — 85 分
+      共同兴趣：Rust, 云原生
+      技能互补：3 项他们有你没有的技能
+      [1] 发起对话  [v] 查看
+
+   2. @berlin_synth (Berlin Synth) — 78 分
+      ...
+
+   3. @tokyo_pixel (Tokyo Pixel) — 72 分
+      ...
+   ════════════════════════════════════════════
+   ```
+
+7. **User selection**:
+   - Ask: "想和谁聊聊？(输入 1-3 或 s 跳过)"
+   - If user selects a number (1-3):
+     - Initiate auto-negotiation: `/friends auto <selected_user>`
+     - Display: "已发起与 @${user} 的自动协商!"
+   - If user skips: suggest manual `/friends auto <user>` later
+
+8. **Complete引导**:
+   ```
+   🎉 快速开始完成!
+
+   下一步:
+   • /friends auto status - 查看协商进度
+   • /friends explore - 浏览更多社区成员
+   • /friends - 查看完整命令列表
+   ```
+
+**Profile Completeness Scoring**:
+
+```
+Score = sum of field weights (max 100)
+
+Field weights:
+  display_name:     10%   (required)
+  bio:              15%
+  interests:        25%   (5% per item, max 5 items)
+  skills:           25%   (5% per item, max 5 items)
+  looking_for:      10%
+  ideal_type:       15%   (3% per subfield: preferred_interests, preferred_skills, personality_traits, deal_breakers, description)
+
+Example:
+  display_name ✅, bio ✅, interests: [Rust, Go] (10%), 
+  skills: [] (0%), looking_for ✅, ideal_type ❌
+  Total = 10 + 15 + 10 + 0 + 10 + 0 = 45%
+```
+
+**Error Handling**:
+
+| Error | Response |
+|-------|----------|
+| Not initialized | "请先运行 /friends init 完成初始化" |
+| Profile too empty (<10%) | "资料太空了，先编辑 profile 吧 → /friends profile edit" |
+| No matches found | "社区还在成长中，或者试试完善你的标签" |
+| Agreement declined | "已跳过，你仍可使用 explore/match 等功能" |
 
 ---
 
