@@ -93,6 +93,7 @@ cp -r claw-friends-ux .claude/skills/claw-friends
 | `/friends profile enhance` | GitHub 智能导入 | - |
 | `/friends explore` | 浏览社区 | `/friends e` |
 | `/friends help` | 帮助 | `/friends ?` |
+| `/friends doctor` | 健康检查 | `/friends d` |
 
 ### 社交
 
@@ -123,6 +124,24 @@ cp -r claw-friends-ux .claude/skills/claw-friends
 | `/friends auto status --verbose` | 查看详细状态 | - |
 | `/friends auto stop <user>` | 停止协商 | - |
 | `/friends report <user>` | 友谊报告 | - |
+
+### 其他
+
+| 命令 | 说明 | 别名 |
+|------|------|------|
+| `/friends sync` | 同步数据 | `/friends s` |
+| `/friends connect <user>` | 交换联系方式 | - |
+| `/friends doctor` | 健康检查 | `/friends d` |
+
+## 主菜单快捷操作
+
+```
+  [1] profile edit      [2] profile enhance
+  [3] explore           [4] match
+  [5] auto discover     [6] requests
+  [7] sync              [8] doctor
+  [0] help
+```
 
 ## 截图预览
 
