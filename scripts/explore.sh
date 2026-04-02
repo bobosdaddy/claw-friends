@@ -64,6 +64,74 @@ calculate_completeness() {
 }
 
 # ─────────────────────────────────────────────────────────────
+# Search by Keyword (interest/skill)
+# ─────────────────────────────────────────────────────────────
+
+search_by_keyword() {
+    local keyword="${1:-}"
+
+    if [ -z "$keyword" ]; then
+        echo -n "搜索关键词 (兴趣/技能): "
+        read -r keyword
+    fi
+
+    if [ -z "$keyword" ]; then
+        echo "已取消"
+        return
+    fi
+
+    echo ""
+    echo "正在搜索包含 \"${keyword}\" 的用户..."
+    list_members "$keyword" "" "1" "keyword"
+}
+
+# ─────────────────────────────────────────────────────────────
+# Interactive Filter Mode
+# ─────────────────────────────────────────────────────────────
+
+interactive_filter() {
+    local filter_interest=""
+    local filter_skill=""
+    local page=1
+
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "筛选模式:"
+    echo "  [1] 按兴趣筛选"
+    echo "  [2] 按技能筛选"
+    echo "  [3] 关键词搜索"
+    echo "  [4] 清除筛选"
+    echo "  [0] 返回"
+    echo -n "选择 [0-4]: "
+    read -r choice
+
+    case "$choice" in
+        1)
+            echo -n "兴趣关键词 (如：rust): "
+            read -r filter_interest
+            list_members "$filter_interest" "" "1"
+            ;;
+        2)
+            echo -n "技能关键词 (如：python): "
+            read -r filter_skill
+            list_members "" "$filter_skill" "1"
+            ;;
+        3)
+            search_by_keyword
+            ;;
+        4)
+            list_members "" "" "1"
+            ;;
+        0)
+            return
+            ;;
+        *)
+            echo "无效选择"
+            ;;
+    esac
+}
+
+# ─────────────────────────────────────────────────────────────
 # List Community Members
 # ─────────────────────────────────────────────────────────────
 
@@ -213,6 +281,7 @@ list_members() {
     echo "  [r] <用户名> 发送好友请求"
     echo "  [f] 按兴趣筛选 (如：rust)"
     echo "  [s] 按技能筛选 (如：python)"
+    echo "  [k] 按兴趣/技能搜索 (关键词)"
     echo "  [c] 清除筛选"
     echo "  [q] 返回"
     echo ""
@@ -226,9 +295,10 @@ main() {
     local filter_interest=""
     local filter_skill=""
     local page=1
+    local search_keyword=""
 
     # Parse arguments for command-line filters
-    while [ $# -gt 0 ]; do
+    if [ $# -gt 0 ]; then
         case "$1" in
             --filter-interest|-i)
                 filter_interest="$2"
@@ -238,21 +308,37 @@ main() {
                 filter_skill="$2"
                 shift 2
                 ;;
+            --search|-k)
+                search_keyword="$2"
+                shift 2
+                ;;
             --page|-p)
                 page="$2"
                 shift 2
                 ;;
+            search|find)
+                # Interactive search
+                search_by_keyword
+                return
+                ;;
             *)
-                shift
+                # Default to search if single argument provided
+                if [ $# -eq 1 ]; then
+                    search_keyword="$1"
+                fi
                 ;;
         esac
-    done
+    fi
 
     # Sync first
     bash "${SCRIPT_DIR}/sync.sh" pull >/dev/null 2>&1 || true
 
     # Show list
-    list_members "$filter_interest" "$filter_skill" "$page"
+    if [ -n "$search_keyword" ]; then
+        list_members "$search_keyword" "$search_keyword" "$page"
+    else
+        list_members "$filter_interest" "$filter_skill" "$page"
+    fi
 }
 
 main "$@"

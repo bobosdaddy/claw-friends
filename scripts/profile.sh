@@ -254,49 +254,113 @@ edit_list_field() {
 
 edit_ideal_type() {
     local file="$1"
+    local wizard_mode="${2:-false}"
 
     echo ""
-    echo "理想类型配置:"
-    echo ""
+    if [ "$wizard_mode" = "true" ]; then
+        echo -e "${CYAN}╔══════════════════════════════════════════════════════╗${NC}"
+        echo -e "${CYAN}║${NC}  ${BOLD}🎯 理想类型配置向导${NC}"
+        echo -e "${CYAN}╚══════════════════════════════════════════════════════╝${NC}"
+        echo ""
+        echo "这个配置将帮助你找到更匹配的合作伙伴"
+        echo "每个步骤都可以直接回车跳过"
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    else
+        echo "理想类型配置:"
+        echo ""
+    fi
 
     # Preferred interests
-    echo "1. 首选兴趣 (用逗号分隔):"
+    echo "1. 首选兴趣 (用逗号分隔，如：rust,cloud-native)"
+    echo "   帮助匹配有共同话题的人"
+    if [ "$wizard_mode" = "true" ]; then
+        echo -e "   ${CYAN}示例：rust, distributed-systems, open-source${NC}"
+    fi
     echo -n "> "
     read -r interests
     if [ -n "$interests" ]; then
         update_ideal_field "preferred_interests" "$interests" "$file"
+        echo -e "  ${GREEN}✓${NC} 已添加首选兴趣"
     fi
+    echo ""
 
     # Preferred skills
-    echo "2. 首选技能 (用逗号分隔):"
+    echo "2. 首选技能 (用逗号分隔，如：go,python)"
+    echo "   匹配技术互补的合作伙伴"
+    if [ "$wizard_mode" = "true" ]; then
+        echo -e "   ${CYAN}示例：rust, python, kubernetes${NC}"
+    fi
     echo -n "> "
     read -r skills
     if [ -n "$skills" ]; then
         update_ideal_field "preferred_skills" "$skills" "$file"
+        echo -e "  ${GREEN}✓${NC} 已添加首选技能"
     fi
+    echo ""
 
     # Personality traits
-    echo "3. 性格特质 (用逗号分隔):"
+    echo "3. 性格特质 (用逗号分隔)"
+    echo "   匹配工作风格相近的人"
+    if [ "$wizard_mode" = "true" ]; then
+        echo -e "   ${CYAN}示例：early-mover, detail-oriented, mentor${NC}"
+    fi
     echo -n "> "
     read -r traits
     if [ -n "$traits" ]; then
         update_ideal_field "personality_traits" "$traits" "$file"
+        echo -e "  ${GREEN}✓${NC} 已添加性格特质"
     fi
+    echo ""
 
     # Deal breakers
-    echo "4. 否决项 (用逗号分隔):"
+    echo "4. 否决项 (用逗号分隔，谨慎填写)"
+    echo "   出现这些标签的用户将不会被推荐"
+    if [ "$wizard_mode" = "true" ]; then
+        echo -e "   ${CYAN}示例：no-commit, inactive${NC}"
+    fi
     echo -n "> "
     read -r deal_breakers
     if [ -n "$deal_breakers" ]; then
         update_ideal_field "deal_breakers" "$deal_breakers" "$file"
+        echo -e "  ${GREEN}✓${NC} 已添加否决项"
     fi
+    echo ""
 
     # Description
-    echo "5. 描述 (可选):"
+    echo "5. 描述 (可选，一句话描述理想伙伴)"
+    if [ "$wizard_mode" = "true" ]; then
+        echo -e "   ${CYAN}示例：寻找一起开源创业的 Rust 开发者${NC}"
+    fi
     echo -n "> "
     read -r description
     if [ -n "$description" ]; then
         update_field "ideal_type_description" "$description" "$file"
+        echo -e "  ${GREEN}✓${NC} 已添加描述"
+    fi
+    echo ""
+
+    if [ "$wizard_mode" = "true" ]; then
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo -e "${GREEN}✓ 理想类型配置完成！${NC}"
+        echo ""
+        echo "下一步:"
+        echo "  [1] 继续完善其他资料"
+        echo "  [2] 开始查看匹配推荐"
+        echo "  [3] 浏览社区"
+        echo -n "选择 [1-3]: "
+        read -r next_choice
+        case "$next_choice" in
+            2)
+                bash "${SCRIPT_DIR}/match.sh"
+                ;;
+            3)
+                bash "${SCRIPT_DIR}/explore.sh"
+                ;;
+            *)
+                echo "返回资料编辑"
+                ;;
+        esac
     fi
 }
 
@@ -363,6 +427,12 @@ main() {
             ;;
         edit)
             edit_profile
+            ;;
+        edit_ideal_wizard)
+            local username
+            username=$(get_username)
+            local profile_file="${REPO_DIR}/profiles/${username}.yaml"
+            edit_ideal_type "$profile_file" "true"
             ;;
         *)
             echo "用法：/friends profile [view|edit] [user]"

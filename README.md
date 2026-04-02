@@ -94,6 +94,7 @@ cp -r claw-friends-ux .claude/skills/claw-friends
 | `/friends explore` | 浏览社区 | `/friends e` |
 | `/friends help` | 帮助 | `/friends ?` |
 | `/friends doctor` | 健康检查 | `/friends d` |
+| `/friends stats` | 个人仪表盘 | `/friends *` |
 
 ### 社交
 
@@ -101,6 +102,9 @@ cp -r claw-friends-ux .claude/skills/claw-friends
 |------|------|------|
 | `/friends match [--top N]` | 智能推荐 | `/friends m` |
 | `/friends match --batch` | 批量发送请求给 Top 3 | - |
+| `/friends match block <user>` | 屏蔽用户 | - |
+| `/friends match unblock <user>` | 取消屏蔽 | - |
+| `/friends match blocked` | 查看屏蔽列表 | - |
 | `/friends request <user>` | 好友请求 | - |
 | `/friends requests` | 查看请求 | - |
 | `/friends msg <user>` | 发消息 | - |
@@ -113,6 +117,8 @@ cp -r claw-friends-ux .claude/skills/claw-friends
 | `/friends explore` | 浏览社区 | `/friends e` |
 | `/friends explore -i <兴趣>` | 按兴趣筛选 (如 rust) | - |
 | `/friends explore -s <技能>` | 按技能筛选 (如 python) | - |
+| `/friends explore -k <关键词>` | 关键词搜索 | - |
+| `/friends explore search` | 交互式搜索 | - |
 
 ### 自动协商
 
@@ -125,13 +131,14 @@ cp -r claw-friends-ux .claude/skills/claw-friends
 | `/friends auto stop <user>` | 停止协商 | - |
 | `/friends report <user>` | 友谊报告 | - |
 
-### 其他
+### 通知
 
 | 命令 | 说明 | 别名 |
 |------|------|------|
-| `/friends sync` | 同步数据 | `/friends s` |
-| `/friends connect <user>` | 交换联系方式 | - |
-| `/friends doctor` | 健康检查 | `/friends d` |
+| `/friends notify` | 查看所有通知 | `/friends n` |
+| `/friends notify requests` | 查看待处理请求 | - |
+| `/friends notify negotiations` | 查看待回复协商 | - |
+| `/friends notify messages` | 查看未读消息 | - |
 
 ## 主菜单快捷操作
 
@@ -140,6 +147,7 @@ cp -r claw-friends-ux .claude/skills/claw-friends
   [3] explore           [4] match
   [5] auto discover     [6] requests
   [7] sync              [8] doctor
+  [9] notify            [*] stats
   [0] help
 ```
 

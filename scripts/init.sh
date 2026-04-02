@@ -440,11 +440,15 @@ show_success_screen() {
     echo "  [2] 📝 手动完善资料"
     echo "      → 编辑兴趣、技能、个人简介"
     echo ""
-    echo "  [3] 🌍 浏览社区"
+    echo "  [3] 🎯 配置理想类型 (推荐)"
+    echo "      → 设置 preferred interests/skills"
+    echo "      → 提升匹配质量"
+    echo ""
+    echo "  [4] 🌍 浏览社区"
     echo "      → 查看现有成员"
     echo "      → 发现有趣的人"
     echo ""
-    echo -n "请输入选择 [1-3]: "
+    echo -n "请输入选择 [1-4]: "
 
     read -r choice
 
@@ -459,7 +463,12 @@ show_success_screen() {
             echo "正在打开资料编辑..."
             bash "${SCRIPT_DIR}/profile.sh" edit
             ;;
-        3|*)
+        3)
+            echo ""
+            echo "正在启动理想类型配置向导..."
+            bash "${SCRIPT_DIR}/profile.sh" edit_ideal_wizard
+            ;;
+        4|*)
             echo ""
             echo "正在加载社区成员..."
             bash "${SCRIPT_DIR}/explore.sh"

@@ -124,10 +124,15 @@ get_matches() {
         local other_user
         other_user=$(basename "$p" .yaml)
 
-        # Skip self, seed profiles, empty profiles
+        # Skip self, seed profiles, empty profiles, blocked users
         [[ "$other_user" == "$username" ]] && continue
         grep -q 'is_seed: true' "$p" 2>/dev/null && continue
         [[ ! -s "$p" ]] && continue
+
+        # Skip blocked users
+        if is_blocked "$other_user"; then
+            continue
+        fi
 
         # Calculate score
         local result
@@ -200,6 +205,7 @@ display_matches() {
     echo "  [1-${top_n}] 选择用户发起对话"
     echo "  v 查看详细资料"
     echo "  r 发送好友请求"
+    echo "  s 跳过/屏蔽此用户"
     echo "  q 返回"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
@@ -222,10 +228,21 @@ interactive_select() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "快速操作:"
     echo "  [b] 一键发送请求给 Top 3 (推荐)"
-    echo -n "选择 [1-${top_n}/v/r/b/q]: "
+    echo "  [s] 跳过/屏蔽用户"
+    echo -n "选择 [1-${top_n}/v/r/b/s/q]: "
     read -r choice
 
     case "$choice" in
+        s|S)
+            echo ""
+            echo "屏蔽用户后，他们将不会出现在你的匹配推荐中"
+            echo ""
+            echo -n "要屏蔽哪个用户 (用户名): "
+            read -r user
+            if [ -n "$user" ]; then
+                block_user "$user"
+            fi
+            ;;
         b|B)
             echo ""
             echo "正在向 Top 3 匹配用户发送好友请求..."
@@ -316,14 +333,126 @@ interactive_select() {
 }
 
 # ─────────────────────────────────────────────────────────────
+# Block/Unblock User
+# ─────────────────────────────────────────────────────────────
+
+block_user() {
+    local user="$1"
+    local block_file="${OCFR_DIR}/blocked_users.txt"
+
+    if [ -z "$user" ]; then
+        echo -n "要屏蔽哪个用户 (用户名): "
+        read -r user
+    fi
+
+    if [ -z "$user" ]; then
+        echo "已取消"
+        return
+    fi
+
+    # Check if user exists
+    local profile="${REPO_DIR}/profiles/${user}.yaml"
+    if [ ! -f "$profile" ]; then
+        echo "用户不存在"
+        return
+    fi
+
+    mkdir -p "$(dirname "$block_file")"
+    echo "$user" >> "$block_file"
+    echo -e "${GREEN}✓ 已屏蔽 @${user}${NC}"
+    echo ""
+    echo "该用户将不会出现在你的匹配推荐中"
+}
+
+unblock_user() {
+    local block_file="${OCFR_DIR}/blocked_users.txt"
+
+    if [ ! -f "$block_file" ]; then
+        echo "没有屏蔽的用户"
+        return
+    fi
+
+    if [ -n "${1:-}" ]; then
+        local target="$1"
+        grep -v "^${target}$" "$block_file" > "${block_file}.tmp" && mv "${block_file}.tmp" "$block_file"
+        echo -e "${GREEN}✓ 已取消屏蔽 @${target}${NC}"
+        return
+    fi
+
+    echo ""
+    echo "已屏蔽的用户:"
+    cat "$block_file" | while read -r user; do
+        echo "  • @${user}"
+    done
+    echo ""
+
+    echo -n "要取消屏蔽哪个用户 (用户名): "
+    read -r user
+
+    if [ -z "$user" ]; then
+        echo "已取消"
+        return
+    fi
+
+    grep -v "^${user}$" "$block_file" > "${block_file}.tmp" && mv "${block_file}.tmp" "$block_file"
+    echo -e "${GREEN}✓ 已取消屏蔽 @${user}${NC}"
+}
+
+is_blocked() {
+    local user="$1"
+    local block_file="${OCFR_DIR}/blocked_users.txt"
+
+    if [ ! -f "$block_file" ]; then
+        return 1
+    fi
+
+    grep -q "^${user}$" "$block_file"
+}
+
+list_blocked() {
+    local block_file="${OCFR_DIR}/blocked_users.txt"
+
+    if [ ! -f "$block_file" ] || [ ! -s "$block_file" ]; then
+        echo "没有屏蔽的用户"
+        return
+    fi
+
+    echo ""
+    echo "已屏蔽的用户:"
+    cat "$block_file" | while read -r user; do
+        echo "  • @${user}"
+    done
+    echo ""
+}
+
+# ─────────────────────────────────────────────────────────────
 # Main
 # ─────────────────────────────────────────────────────────────
 
 main() {
     local top_n=5
     local batch_request=false
+    local action=""
 
-    # Parse arguments
+    # Parse arguments - check for action commands first
+    if [ $# -gt 0 ]; then
+        case "$1" in
+            block|ban|skip)
+                block_user "${2:-}"
+                return
+                ;;
+            unblock|unban)
+                unblock_user "${2:-}"
+                return
+                ;;
+            blocked|list-blocked)
+                list_blocked
+                return
+                ;;
+        esac
+    fi
+
+    # Parse arguments for match options
     while [ $# -gt 0 ]; do
         case "$1" in
             --top|-n)

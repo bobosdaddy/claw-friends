@@ -208,12 +208,13 @@ view_conversation() {
 }
 
 # ─────────────────────────────────────────────────────────────
-# Send Message
+# Send Message (with Preview)
 # ─────────────────────────────────────────────────────────────
 
 send_message() {
     local target="$1"
     local content="$2"
+    local skip_preview="${3:-false}"
 
     local username
     username=$(get_username)
@@ -271,6 +272,76 @@ send_message() {
                 exit 0
                 ;;
         esac
+        return
+    fi
+
+    # Preview and edit flow
+    if [ "$skip_preview" != "true" ] || [ -z "$content" ]; then
+        echo ""
+        echo -e "${CYAN}╔══════════════════════════════════════════════════════╗${NC}"
+        echo -e "${CYAN}║${NC}  ${BOLD}✏️  编辑消息${NC}"
+        echo -e "${CYAN}╚══════════════════════════════════════════════════════╝${NC}"
+        echo ""
+
+        if [ -n "$content" ]; then
+            echo "当前消息内容:"
+            echo "┌─────────────────────────────────────────────────────────┐"
+            echo "$content" | fold -w 55 | while IFS= read -r line; do
+                printf "│  %-54s│\n" "$line"
+            done
+            echo "└─────────────────────────────────────────────────────────┘"
+            echo ""
+            echo -n "编辑后重新输入，或直接回车使用当前内容："
+            read -r new_content
+            if [ -n "$new_content" ]; then
+                content="$new_content"
+            fi
+        else
+            echo "输入消息内容 (输入 ':q' 取消):"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo -n "> "
+            read -r content
+
+            if [ "$content" = ":q" ]; then
+                echo "已取消"
+                return
+            fi
+        fi
+
+        # Preview before sending
+        echo ""
+        echo "┌─────────────────────────────────────────────────────────┐"
+        echo "│  📤 消息预览                                           │"
+        echo "│  ───────────────────────────────────────────────────────  │"
+        echo "│  收件人：@${target}"
+        echo "│  状态：🔒 端到端加密"
+        echo "│  ───────────────────────────────────────────────────────  │"
+        echo "$content" | fold -w 50 | while IFS= read -r line; do
+            printf "│  %-54s│\n" "$line"
+        done
+        echo "└─────────────────────────────────────────────────────────┘"
+        echo ""
+        echo -n "确认发送？[Y/n/e(编辑)]: "
+        read -r confirm
+
+        case "$confirm" in
+            n|N)
+                echo "已取消发送"
+                return
+                ;;
+            e|E)
+                echo "重新编辑..."
+                send_message "$target" "" "false"
+                return
+                ;;
+            *)
+                # Continue to send
+                ;;
+        esac
+    fi
+
+    if [ -z "$content" ]; then
+        echo "消息内容不能为空"
         return
     fi
 

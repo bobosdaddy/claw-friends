@@ -262,6 +262,7 @@ show_main_menu() {
     echo "  [3] explore           [4] match"
     echo "  [5] auto discover     [6] requests"
     echo "  [7] sync              [8] doctor"
+    echo "  [9] notify            [*] stats"
     echo "  [0] help"
     echo ""
     echo -n "选择或输入命令："
@@ -356,6 +357,14 @@ main() {
                 bash "${SCRIPT_DIR}/doctor.sh"
                 return
                 ;;
+            9)
+                bash "${SCRIPT_DIR}/notify.sh" check
+                return
+                ;;
+            *)
+                bash "${SCRIPT_DIR}/stats.sh"
+                return
+                ;;
             0)
                 info_help
                 return
@@ -398,6 +407,12 @@ main() {
             ;;
         doctor)
             bash "${SCRIPT_DIR}/doctor.sh"
+            ;;
+        notify)
+            bash "${SCRIPT_DIR}/notify.sh" check
+            ;;
+        stats|dashboard|stats)
+            bash "${SCRIPT_DIR}/stats.sh"
             ;;
         help|*)
             info_help
