@@ -305,7 +305,24 @@ update_profile() {
 # ─────────────────────────────────────────────────────────────
 
 main() {
-    print_header
+    local auto_accept=false
+
+    # Parse arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --auto-accept|-a)
+                auto_accept=true
+                shift
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
+    if [ "$auto_accept" = false ]; then
+        print_header
+    fi
 
     local username
     username=$(get_username)
@@ -321,19 +338,23 @@ main() {
     local current_score
     current_score=$(calculate_completeness "$profile_file")
 
-    echo "当前资料完整度：${current_score}%"
-    if [ "$current_score" -lt 30 ]; then
-        echo -e "${YELLOW}⚠️  资料较空洞，匹配质量会受影响${NC}"
-    elif [ "$current_score" -lt 70 ]; then
-        echo -e "${BLUE}ℹ  资料尚可，但可以更完善${NC}"
-    else
-        echo -e "${GREEN}✓  资料完整度良好${NC}"
+    if [ "$auto_accept" = false ]; then
+        echo "当前资料完整度：${current_score}%"
+        if [ "$current_score" -lt 30 ]; then
+            echo -e "${YELLOW}⚠️  资料较空洞，匹配质量会受影响${NC}"
+        elif [ "$current_score" -lt 70 ]; then
+            echo -e "${BLUE}ℹ  资料尚可，但可以更完善${NC}"
+        else
+            echo -e "${GREEN}✓  资料完整度良好${NC}"
+        fi
+        echo ""
     fi
-    echo ""
 
     # Fetch data
-    print_loading "正在分析 GitHub 数据"
-    echo ""
+    if [ "$auto_accept" = false ]; then
+        print_loading "正在分析 GitHub 数据"
+        echo ""
+    fi
 
     local data
     data=$(fetch_github_data "$username")
@@ -344,21 +365,26 @@ main() {
     star_topics=$(echo "$data" | grep '^STAR_TOPICS:' | sed 's/^STAR_TOPICS://')
     contrib_count=$(echo "$data" | grep '^CONTRIB_COUNT:' | sed 's/^CONTRIB_COUNT://')
 
-    print_success "分析完成"
+    if [ "$auto_accept" = false ]; then
+        print_success "分析完成"
+        # Display results
+        display_inferred_tags "$languages" "$repo_topics" "$star_topics"
 
-    # Display results
-    display_inferred_tags "$languages" "$repo_topics" "$star_topics"
-
-    # Ask for confirmation
-    echo "╔══════════════════════════════════════════════════════╗"
-    echo "║  要添加这些标签到你的资料吗？                         ║"
-    echo "╚══════════════════════════════════════════════════════╝"
-    echo ""
-    echo -n "  [Y/n]: "
-    read -r confirm
+        # Ask for confirmation
+        echo "╔══════════════════════════════════════════════════════╗"
+        echo "║  要添加这些标签到你的资料吗？                         ║"
+        echo "╚══════════════════════════════════════════════════════╝"
+        echo ""
+        echo -n "  [Y/n]: "
+        read -r confirm
+    else
+        confirm="Y"
+    fi
 
     if [[ "$confirm" != "n" && "$confirm" != "N" ]]; then
-        print_loading "更新资料"
+        if [ "$auto_accept" = false ]; then
+            print_loading "更新资料"
+        fi
 
         # Combine topics
         local all_topics
@@ -370,24 +396,31 @@ main() {
         cd "${REPO_DIR}"
         git add "profiles/${username}.yaml" 2>/dev/null || true
         git commit -m "chore: enhance profile from GitHub for ${username}" >/dev/null 2>&1 || true
-        git push origin HEAD 2>/dev/null || print_warning "推送失败，稍后手动 /friends sync"
+        git push origin HEAD 2>/dev/null || true
 
-        print_success "资料已更新"
+        if [ "$auto_accept" = false ]; then
+            print_success "资料已更新"
 
-        # Show new score
-        local new_score
-        new_score=$(calculate_completeness "$profile_file")
+            # Show new score
+            local new_score
+            new_score=$(calculate_completeness "$profile_file")
 
-        echo ""
-        echo "资料完整度：${current_score}% → ${GREEN}${new_score}%${NC}"
-
-        if [ "$new_score" -ge 70 ]; then
             echo ""
-            echo -e "${GREEN}✓ 资料已足够完善，可以开始匹配了!${NC}"
+            echo "资料完整度：${current_score}% → ${GREEN}${new_score}%${NC}"
+
+            if [ "$new_score" -ge 70 ]; then
+                echo ""
+                echo -e "${GREEN}✓ 资料已足够完善，可以开始匹配了!${NC}"
+                echo ""
+                echo "下一步:"
+                echo "  /friends match  — 查看智能推荐"
+                echo "  /friends explore  — 浏览社区"
+            fi
+        else
+            local new_score
+            new_score=$(calculate_completeness "$profile_file")
             echo ""
-            echo "下一步:"
-            echo "  /friends match  — 查看智能推荐"
-            echo "  /friends explore  — 浏览社区"
+            echo -e "${GREEN}✓ 资料已更新：${current_score}% → ${new_score}%${NC}"
         fi
     else
         echo ""

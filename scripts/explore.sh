@@ -227,6 +227,27 @@ main() {
     local filter_skill=""
     local page=1
 
+    # Parse arguments for command-line filters
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --filter-interest|-i)
+                filter_interest="$2"
+                shift 2
+                ;;
+            --filter-skill|-s)
+                filter_skill="$2"
+                shift 2
+                ;;
+            --page|-p)
+                page="$2"
+                shift 2
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
     # Sync first
     bash "${SCRIPT_DIR}/sync.sh" pull >/dev/null 2>&1 || true
 

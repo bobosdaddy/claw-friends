@@ -281,6 +281,12 @@ view_status() {
     local username
     username=$(get_username)
     local negotiations_dir="${REPO_DIR}/negotiations"
+    local verbose=false
+
+    # Check for verbose flag
+    if [ "${1:-}" = "--verbose" ] || [ "${1:-}" = "-v" ]; then
+        verbose=true
+    fi
 
     # Sync first
     bash "${SCRIPT_DIR}/sync.sh" pull >/dev/null 2>&1 || true
@@ -383,6 +389,20 @@ view_status() {
             echo "│                                                         │"
             printf "│  状态：%-46s│\n" "等待响应"
             echo "│                                                         │"
+
+            if [ "$verbose" = true ] && [[ -n "$latest_file" ]]; then
+                echo "│  ───────────────────────────────────────────────  │"
+                echo "│  📝 最近一轮摘要:"
+                local last_msg
+                last_msg=$(grep '^message:' "$latest_file" 2>/dev/null | sed 's/^message: *"\(.*\)"/\1/' | head -1)
+                if [[ -n "$last_msg" ]]; then
+                    local truncated_msg="${last_msg:0:45}"
+                    [[ ${#last_msg} -gt 45 ]] && truncated_msg="${truncated_msg}..."
+                    printf "│     \"%s\"│\n" "$truncated_msg"
+                fi
+                echo "│                                                         │"
+            fi
+
             echo "│  [v] 详情  [s] 停止                                     │"
             echo "└─────────────────────────────────────────────────────────┘"
             echo ""

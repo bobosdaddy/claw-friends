@@ -218,10 +218,38 @@ interactive_select() {
         return
     fi
 
-    echo -n "选择 [1-${top_n}/v/r/q]: "
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "快速操作:"
+    echo "  [b] 一键发送请求给 Top 3 (推荐)"
+    echo -n "选择 [1-${top_n}/v/r/b/q]: "
     read -r choice
 
     case "$choice" in
+        b|B)
+            echo ""
+            echo "正在向 Top 3 匹配用户发送好友请求..."
+            echo ""
+            local sent_count=0
+            echo "$matches" | head -3 | while IFS='|' read -r score user name common complement reason; do
+                echo -e "  ${BLUE}⟳${NC} 向 @${user} 发送请求..."
+                bash "${SCRIPT_DIR}/request.sh" "$user" 2>/dev/null && {
+                    sent_count=$((sent_count + 1))
+                    echo -e "  ${GREEN}✓${NC} 已发送给 @${user}"
+                } || {
+                    echo -e "  ${YELLOW}⚠️${NC}  @${user} 的请求已存在或失败"
+                }
+                echo ""
+            done
+            echo ""
+            echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+            echo -e "${GREEN}✓ 已完成批量发送${NC}"
+            echo ""
+            echo "下一步:"
+            echo "  /friends auto status  — 查看协商进度"
+            echo "  /friends requests     — 查看收到的请求"
+            echo ""
+            ;;
         [1-9])
             if [ "$choice" -le "$top_n" ]; then
                 local selected
@@ -232,21 +260,38 @@ interactive_select() {
                 name=$(echo "$selected" | cut -d'|' -f3)
 
                 echo ""
-                echo "想和 @${user} 聊聊吗？"
+                echo "╔══════════════════════════════════════════════════════╗"
+                echo "║  和 @${user} 开启对话的最佳方式                    ║"
+                echo "╚══════════════════════════════════════════════════════╝"
                 echo ""
-                echo "  [1] 发送好友请求"
+                echo "  [1] 发送好友请求 + 自动协商 (推荐)"
+                echo "      → 双方 AI 助手自动交流，10 轮后生成友谊报告"
+                echo ""
                 echo "  [2] 查看详细资料"
-                echo "  [3] 返回"
+                echo "      → 先了解更多再决定"
+                echo ""
+                echo "  [3] 只发送好友请求"
+                echo "      → 等待对方手动接受"
+                echo ""
+                echo "  [4] 返回"
                 echo ""
                 echo -n "选择："
                 read -r action
 
                 case "$action" in
                     1)
+                        echo ""
+                        echo -e "${BLUE}⟳${NC} 正在发送好友请求并启动协商..."
                         bash "${SCRIPT_DIR}/request.sh" "$user"
+                        echo ""
+                        echo "正在启动自动协商..."
+                        bash "${SCRIPT_DIR}/auto.sh" start "$user"
                         ;;
                     2)
                         bash "${SCRIPT_DIR}/profile.sh" view "$user"
+                        ;;
+                    3)
+                        bash "${SCRIPT_DIR}/request.sh" "$user"
                         ;;
                     *)
                         echo "已取消"
@@ -276,11 +321,21 @@ interactive_select() {
 
 main() {
     local top_n=5
+    local batch_request=false
 
     # Parse arguments
     while [ $# -gt 0 ]; do
         case "$1" in
             --top|-n)
+                top_n="$2"
+                shift 2
+                ;;
+            --batch|-b)
+                batch_request=true
+                shift
+                ;;
+            --request-all-top)
+                batch_request=true
                 top_n="$2"
                 shift 2
                 ;;
@@ -324,6 +379,41 @@ main() {
     echo ""
     echo -e "${BLUE}⟳${NC} 正在同步最新数据..."
     bash "${SCRIPT_DIR}/sync.sh" pull >/dev/null 2>&1 || true
+
+    # Handle batch request
+    if [ "$batch_request" = true ]; then
+        echo ""
+        echo "正在向 Top ${top_n} 匹配用户发送好友请求..."
+        echo ""
+        local matches
+        matches=$(get_matches "$top_n")
+
+        if [ -z "$matches" ]; then
+            echo "未找到匹配的用户"
+            exit 0
+        fi
+
+        local sent_count=0
+        echo "$matches" | while IFS='|' read -r score user name common complement reason; do
+            echo -e "  ${BLUE}⟳${NC} 向 @${user} 发送请求..."
+            if bash "${SCRIPT_DIR}/request.sh" "$user" 2>/dev/null; then
+                echo -e "  ${GREEN}✓${NC} 已发送给 @${user}"
+                sent_count=$((sent_count + 1))
+            else
+                echo -e "  ${YELLOW}⚠️${NC}  @${user} 的请求已存在或失败"
+            fi
+            echo ""
+        done
+        echo ""
+        echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${GREEN}✓ 已完成批量发送${NC}"
+        echo ""
+        echo "下一步:"
+        echo "  /friends auto status  — 查看协商进度"
+        echo "  /friends requests     — 查看收到的请求"
+        echo ""
+        exit 0
+    fi
 
     # Display matches
     display_matches "$top_n"

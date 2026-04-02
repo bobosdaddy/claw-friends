@@ -218,12 +218,6 @@ send_message() {
     local username
     username=$(get_username)
 
-    # Check friendship
-    if ! check_friendship "$username" "$target"; then
-        error_not_friends "$target"
-        exit 1
-    fi
-
     # Check target exists
     local target_profile="${REPO_DIR}/profiles/${target}.yaml"
     if [ ! -f "$target_profile" ]; then
@@ -235,6 +229,49 @@ send_message() {
     if grep -q 'is_seed: true' "$target_profile"; then
         error_seed_profile "$target"
         exit 1
+    fi
+
+    # Check friendship
+    if ! check_friendship "$username" "$target"; then
+        echo ""
+        echo -e "${YELLOW}╔══════════════════════════════════════════════════════╗${NC}"
+        echo -e "${YELLOW}║${NC}  ${BOLD}⚠️  你们还不是好友${NC}"
+        echo -e "${YELLOW}╚══════════════════════════════════════════════════════╝${NC}"
+        echo ""
+        echo "发送消息前需要先建立好友关系。"
+        echo ""
+        echo "选择一种方式:"
+        echo "  [1] 发送好友请求 + 自动协商 (推荐)"
+        echo "      → AI 助手自动交流，10 轮后生成友谊报告"
+        echo "      → 适合寻找深度合作/交流机会"
+        echo ""
+        echo "  [2] 只发送好友请求"
+        echo "      → 等待对方手动接受"
+        echo "      → 适合先建立联系"
+        echo ""
+        echo "  [3] 取消"
+        echo ""
+        echo -n "选择："
+        read -r choice
+
+        case "$choice" in
+            1)
+                echo ""
+                echo -e "${BLUE}⟳${NC} 正在发送好友请求并启动协商..."
+                bash "${SCRIPT_DIR}/request.sh" "$target"
+                echo ""
+                echo "正在启动自动协商..."
+                bash "${SCRIPT_DIR}/auto.sh" start "$target"
+                ;;
+            2)
+                bash "${SCRIPT_DIR}/request.sh" "$target"
+                ;;
+            *)
+                echo "已取消"
+                exit 0
+                ;;
+        esac
+        return
     fi
 
     # Get recipient's public key

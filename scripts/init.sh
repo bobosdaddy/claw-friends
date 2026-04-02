@@ -404,23 +404,45 @@ show_success_screen() {
     echo "└─────────────────────────────────────────┘"
     echo ""
 
+    # Auto-enhance flow
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}🚀 快速开始 (推荐)${NC}"
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo "检测到你的 GitHub 账号：@${username}"
+    echo ""
+    echo "现在将自动分析你的 GitHub 项目，提取:"
+    echo "  • 常用编程语言 → 技能标签"
+    echo "  • 项目主题 → 兴趣标签"
+    echo "  • Star 偏好 → 补充兴趣"
+    echo ""
+    echo -n "是否开始智能导入？[Y/n]: "
+    read -r enhance_choice
+
+    if [[ "$enhance_choice" != "n" && "$enhance_choice" != "N" ]]; then
+        echo ""
+        echo "正在分析 GitHub 数据..."
+        bash "${SCRIPT_DIR}/enhance.sh" --auto-accept
+    else
+        echo ""
+        echo "已跳过智能导入"
+    fi
+
     # Next steps menu
-    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${YELLOW}下一步 (选择一项):${NC}"
-    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}下一步 (选择一项):${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
-    echo "  [1] 📝 完善资料 (推荐)"
-    echo "      → 智能导入 GitHub 项目和技术栈"
-    echo "      → 手动编辑兴趣和能力"
+    echo "  [1] 🎯 查看匹配推荐 (推荐)"
+    echo "      → 基于你的技能和兴趣智能推荐"
+    echo "      → 一键发送好友请求"
     echo ""
-    echo "  [2] 🚀 快速开始 (30 秒)"
-    echo "      → 自动导入 GitHub 数据"
-    echo "      → 立即查看匹配推荐"
-    echo "      → 开始第一次自动协商"
+    echo "  [2] 📝 手动完善资料"
+    echo "      → 编辑兴趣、技能、个人简介"
     echo ""
-    echo "  [3] 🌍 先逛逛社区"
-    echo "      → 浏览现有成员"
-    echo "      → 看看别人怎么玩"
+    echo "  [3] 🌍 浏览社区"
+    echo "      → 查看现有成员"
+    echo "      → 发现有趣的人"
     echo ""
     echo -n "请输入选择 [1-3]: "
 
@@ -429,20 +451,18 @@ show_success_screen() {
     case "$choice" in
         1)
             echo ""
-            echo "正在打开资料编辑..."
-            bash "${SCRIPT_DIR}/profile.sh" edit
+            echo "正在为你寻找匹配..."
+            bash "${SCRIPT_DIR}/match.sh" --top 5
             ;;
         2)
             echo ""
-            echo "正在启动快速开始..."
-            bash "${SCRIPT_DIR}/quickstart.sh"
+            echo "正在打开资料编辑..."
+            bash "${SCRIPT_DIR}/profile.sh" edit
             ;;
         3|*)
             echo ""
-            echo "好的，你可以随时:"
-            echo "  /friends profile edit  — 编辑资料"
-            echo "  /friends explore  — 浏览社区"
-            echo "  /friends match  — 获取推荐"
+            echo "正在加载社区成员..."
+            bash "${SCRIPT_DIR}/explore.sh"
             ;;
     esac
 }
