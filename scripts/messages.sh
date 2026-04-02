@@ -221,6 +221,40 @@ error_network_required() {
     echo ""
 }
 
+error_git_conflict() {
+    echo ""
+    echo -e "${YELLOW}╔══════════════════════════════════════════════════════╗${NC}"
+    echo -e "${YELLOW}║${NC}  ${BOLD}🔄 Git 合并冲突${NC}"
+    echo -e "${YELLOW}╚══════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo "检测到数据冲突，可能同时有多个更新。"
+    echo ""
+    echo "解决步骤:"
+    echo "  1. 手动拉取最新数据：cd ~/.ocfr/repo && git pull"
+    echo "  2. 解决冲突文件 (如有)"
+    echo "  3. 重新推送：git push"
+    echo ""
+    echo "或运行:"
+    echo -e "  ${CYAN}/friends sync --force${NC} (强制覆盖远程)"
+    echo ""
+}
+
+error_timeout() {
+    echo ""
+    echo -e "${RED}╔══════════════════════════════════════════════════════╗${NC}"
+    echo -e "${RED}║${NC}  ${BOLD}⏱️  操作超时${NC}"
+    echo -e "${RED}╚══════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo "操作超时，可能原因:"
+    echo "  • 网络连接缓慢"
+    echo "  • GitHub 服务器响应慢"
+    echo ""
+    echo "建议:"
+    echo "  • 检查网络连接"
+    echo "  • 稍后重试"
+    echo ""
+}
+
 error_prerequisites_missing() {
     local missing="$1"
     echo ""

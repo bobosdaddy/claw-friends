@@ -209,7 +209,7 @@ view_requests() {
     # Show pending
     if [ ${#pending[@]} -gt 0 ]; then
         echo "┌─────────────────────────────────────────────────────────┐"
-        echo "│  ⏳ 待处理 (${#pending[@})"
+        echo "│  ⏳ 待处理 (${#pending[@]})"
         echo "└─────────────────────────────────────────────────────────┘"
         echo ""
 
@@ -235,10 +235,32 @@ view_requests() {
             echo ""
         done
 
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo "操作:"
-        echo "  accept <用户名>  — 接受"
-        echo "  decline <用户名> — 拒绝"
+        echo "  accept <用户名>  — 接受请求"
+        echo "  decline <用户名> — 拒绝请求"
+        echo "  <用户名>         — 快速接受 (直接输入用户名)"
         echo ""
+        echo -n "请输入命令或用户名："
+        read -r cmd_input
+
+        # Simple parsing: if input contains space, it's a command
+        if [[ "$cmd_input" == *" "* ]]; then
+            local action target_user
+            action=$(echo "$cmd_input" | cut -d' ' -f1)
+            target_user=$(echo "$cmd_input" | cut -d' ' -f2)
+            case "$action" in
+                accept) accept_request "$target_user" ;;
+                decline) decline_request "$target_user" ;;
+                *) echo "未知命令" ;;
+            esac
+        else
+            # Treat as username for quick accept
+            if [ -n "$cmd_input" ]; then
+                accept_request "$cmd_input"
+            fi
+        fi
+        return
     fi
 
     # Show accepted
@@ -312,6 +334,41 @@ EOF
     git push origin HEAD 2>/dev/null || true
 
     success_request_accepted "$target"
+
+    # Show celebration and next steps
+    echo ""
+    echo -e "${GREEN}╔══════════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║${NC}  ${BOLD}🎉 你们现在是好友了！${NC}"
+    echo -e "${GREEN}╚══════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo "恭喜！你现在可以:"
+    echo ""
+    echo "  [1] 发送第一条消息"
+    echo "  [2] 开始自动协商 (AI 助手帮忙破冰)"
+    echo "  [3] 返回"
+    echo ""
+    echo -n "选择 [1-3]:"
+    read -r next_action
+
+    case "$next_action" in
+        1)
+            echo ""
+            echo "输入你想说的话:"
+            echo -n "> "
+            read -r first_msg
+            if [ -n "$first_msg" ]; then
+                bash "${SCRIPT_DIR}/msg.sh" "$target" "$first_msg"
+            fi
+            ;;
+        2)
+            echo ""
+            echo "正在启动自动协商..."
+            bash "${SCRIPT_DIR}/auto.sh" start "$target"
+            ;;
+        *)
+            echo "返回主菜单"
+            ;;
+    esac
 }
 
 decline_request() {
@@ -340,6 +397,7 @@ decline_request() {
     git push origin HEAD 2>/dev/null || true
 
     echo ""
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo "已拒绝 @${target} 的好友请求"
     echo ""
 }

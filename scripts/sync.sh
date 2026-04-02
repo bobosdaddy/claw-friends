@@ -52,7 +52,10 @@ do_pull() {
     local branch
     branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo "main")
 
-    echo -e "${BLUE}⟳${NC} 正在拉取最新数据..."
+    local username
+    username=$(get_username)
+    echo -e "${BLUE}⟳${NC} 正在同步 @${username} 的数据..."
+    echo ""
 
     local pull_err
     if pull_err=$(git pull --rebase origin "${branch}" 2>&1); then

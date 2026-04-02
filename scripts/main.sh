@@ -260,7 +260,9 @@ show_main_menu() {
     echo ""
     echo "  [1] profile edit      [2] profile enhance"
     echo "  [3] explore           [4] match"
-    echo "  [5] auto discover     [0] help"
+    echo "  [5] auto discover     [6] requests"
+    echo "  [7] sync              [8] doctor"
+    echo "  [0] help"
     echo ""
     echo -n "选择或输入命令："
 }
@@ -296,6 +298,9 @@ resolve_alias() {
             ;;
         s|sync|pull|push)
             echo "sync"
+            ;;
+        d|doctor|health)
+            echo "doctor"
             ;;
         h|help|\?|*)
             echo "help"
@@ -339,6 +344,18 @@ main() {
                 bash "${SCRIPT_DIR}/auto.sh" discover
                 return
                 ;;
+            6)
+                bash "${SCRIPT_DIR}/request.sh" requests
+                return
+                ;;
+            7)
+                bash "${SCRIPT_DIR}/sync.sh"
+                return
+                ;;
+            8)
+                bash "${SCRIPT_DIR}/doctor.sh"
+                return
+                ;;
             0)
                 info_help
                 return
@@ -378,6 +395,9 @@ main() {
             ;;
         sync)
             bash "${SCRIPT_DIR}/sync.sh"
+            ;;
+        doctor)
+            bash "${SCRIPT_DIR}/doctor.sh"
             ;;
         help|*)
             info_help
