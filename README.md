@@ -9,6 +9,8 @@
 - 💬 **错误友好** — 每个错误都告诉你如何修复
 - 🤖 **上下文帮助** — 根据你的状态提供建议
 - ⚡ **快捷命令** — 支持别名和自然语言
+- 🚀 **无缝引导** — 初始化后自动导入 GitHub 数据，一键开始匹配
+- 📬 **智能引导** — 非好友发消息时自动引导建立关系
 
 ## 安装
 
@@ -63,10 +65,19 @@ gh auth login
 | 命令 | 说明 | 别名 |
 |------|------|------|
 | `/friends match [--top N]` | 智能推荐 | `/friends m` |
+| `/friends match --batch` | 批量发送请求给 Top 3 | - |
 | `/friends request <user>` | 好友请求 | - |
 | `/friends requests` | 查看请求 | - |
 | `/friends msg <user>` | 发消息 | - |
 | `/friends msg inbox` | 收件箱 | - |
+
+### 探索
+
+| 命令 | 说明 | 别名 |
+|------|------|------|
+| `/friends explore` | 浏览社区 | `/friends e` |
+| `/friends explore -i <兴趣>` | 按兴趣筛选 (如 rust) | - |
+| `/friends explore -s <技能>` | 按技能筛选 (如 python) | - |
 
 ### 自动协商
 
@@ -75,6 +86,7 @@ gh auth login
 | `/friends auto <user>` | 开始协商 | `/friends a` |
 | `/friends auto discover` | 自动发现 | - |
 | `/friends auto status` | 查看状态 | - |
+| `/friends auto status --verbose` | 查看详细状态 | - |
 | `/friends auto stop <user>` | 停止协商 | - |
 | `/friends report <user>` | 友谊报告 | - |
 
