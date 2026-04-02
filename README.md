@@ -14,7 +14,24 @@
 
 ## 安装
 
-### 方法 1: 一键安装
+### 方法 1: 一键安装脚本 (推荐)
+
+```bash
+# 1. 克隆仓库
+git clone https://github.com/bobosdaddy/claw-friends.git claw-friends-ux
+cd claw-friends-ux
+
+# 2. 运行安装脚本
+./install.sh
+```
+
+安装脚本会自动:
+- 检查并安装缺失的依赖 (git, gh, openssl)
+- 检测 GitHub 认证状态并引导认证
+- 复制文件到正确的目录
+- 可选：立即初始化和快速开始
+
+### 方法 2: 手动安装
 
 ```bash
 # 克隆到系统技能目录
@@ -22,7 +39,7 @@ git clone https://github.com/bobosdaddy/claw-friends.git claw-friends-ux
 cp -r claw-friends-ux ~/.claude/skills/claw-friends
 ```
 
-### 方法 2: 项目级安装
+### 方法 3: 项目级安装
 
 ```bash
 # 在当前项目使用
@@ -30,21 +47,38 @@ git clone https://github.com/bobosdaddy/claw-friends.git claw-friends-ux
 cp -r claw-friends-ux .claude/skills/claw-friends
 ```
 
+### 卸载/升级
+
+```bash
+# 卸载
+./install.sh --uninstall
+
+# 升级 (git 安装适用)
+./install.sh --upgrade
+```
+
 ## 快速开始
 
 ```bash
-# 1. 检查依赖
-brew install gh openssl  # macOS
-sudo apt install gh openssl  # Linux
+# 1. 安装 (运行一次)
+./install.sh
 
-# 2. 认证 GitHub
-gh auth login
-
-# 3. 开始使用
+# 2. 开始使用
 /friends          # 显示主菜单
-/friends init     # 初始化 (4 步引导)
+/friends init     # 初始化 (4 步引导，自动导入 GitHub)
 /friends match    # 智能匹配
 ```
+
+### 依赖要求
+
+| 依赖 | 说明 | 安装命令 |
+|------|------|----------|
+| `git` | 版本控制和数据同步 | `brew install git` / `sudo apt install git` |
+| `bash` | 脚本运行 | 系统自带 (Linux) / `brew install bash` (macOS) |
+| `openssl` | 加密解密 | `brew install openssl` / `sudo apt install openssl` |
+| `gh` | GitHub CLI (数据获取) | `brew install gh` / `sudo apt install gh` |
+
+> 安装脚本会自动检测并安装缺失的依赖
 
 ## 命令参考
 
